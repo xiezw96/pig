@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.order.withdrawalApply.mapper.WithdrawalApplyMapper">
+
+	<resultMap id="withdrawalApplyMap" type="com.pig4cloud.pig.order.withdrawalApply.entity.WithdrawalApply">
+		<id property="id" column="id"/>
+		<result property="code" column="code"/>
+		<result property="total" column="total"/>
+		<result property="withdrawalPrice" column="withdrawalPrice"/>
+		<result property="userId" column="user_id"/>
+		<result property="userName" column="userName"/>
+		<result property="bankCardFront" column="bank_card_front"/>
+		<result property="bankCardVerso" column="bank_card_verso"/>
+		<result property="identityCardFront" column="identity_card_front"/>
+		<result property="identityCardVerso" column="identity_card_verso"/>
+		<result property="bankAccountName" column="bank_account_name"/>
+		<result property="reqTime" column="req_time"/>
+		<result property="auditorId" column="auditor_id"/>
+		<result property="auditTime" column="audit_time"/>
+		<result property="auditStatus" column="audit_status"/>
+		<result property="remitStatus" column="remit_status"/>
+		<result property="remitUserId" column="remit_user_id"/>
+		<result property="remitTime" column="remit_time"/>
+		<result property="remark" column="remark"/>
+	</resultMap>
+
+	<!--withdrawalApply简单分页查询-->
+	<select id="getWithdrawalApplyPage" resultMap="withdrawalApplyMap">
+		SELECT
+		ap.id,
+		ap.code,
+		ap.total,
+		a.withdrawal_price as withdrawalPrice,
+		ap.user_id,
+		a.`name` as userName,
+		ap.req_time,
+		ap.auditor_id,
+		ap.audit_time,
+		ap.audit_status,
+		ap.remit_status,
+		ap.remit_user_id,
+		ap.remit_time,
+		ap.remark,
+		a.identity_card_front,
+		a.identity_card_verso,
+		a.bank_card_front,
+		a.bank_card_verso,
+		a.bank_account_name
+		FROM fx_withdrawal_apply ap,
+		fx_agent a
+		<where>
+			AND ap.user_id = a.agent_id
+			<if test="withdrawalApply.id != null">
+				AND ap.id = #{withdrawalApply.id}
+			</if>
+			<if test="withdrawalApply.code != null and withdrawalApply.code.trim() != ''">
+				AND ap.code = #{withdrawalApply.code}
+			</if>
+			<if test="withdrawalApply.userId != null">
+				AND ap.user_id = #{withdrawalApply.userId}
+			</if>
+			<if test="withdrawalApply.userName != null and withdrawalApply.userName.trim() != ''">
+				AND a.name like concat('%',#{withdrawalApply.userName},'%')
+			</if>
+			<if test="withdrawalApply.reqTime != null">
+				AND ap.req_time = #{withdrawalApply.reqTime}
+			</if>
+			<if test="withdrawalApply.auditorId != null and withdrawalApply.auditorId.trim() != ''">
+				AND ap.auditor_id = #{withdrawalApply.auditorId}
+			</if>
+			<if test="withdrawalApply.auditTime != null">
+				AND ap.audit_time = #{withdrawalApply.auditTime}
+			</if>
+			<if test="withdrawalApply.reqStartTime != null and withdrawalApply.reqStartTime.trim() != ''">
+				AND ap.req_time &gt;= #{withdrawalApply.reqStartTime}
+			</if>
+			<if test="withdrawalApply.reqEndTime != null and withdrawalApply.reqEndTime.trim() != ''">
+				AND ap.req_time &lt;= #{withdrawalApply.reqEndTime}
+			</if>
+			<if test="withdrawalApply.auditStatus != null">
+				AND ap.audit_status = #{withdrawalApply.auditStatus}
+			</if>
+			<if test="withdrawalApply.remitStatus != null">
+				AND ap.remit_status = #{withdrawalApply.remitStatus}
+			</if>
+			<if test="withdrawalApply.remitUserId != null">
+				AND ap.remit_user_id = #{withdrawalApply.remitUserId}
+			</if>
+			<if test="withdrawalApply.remitTime != null">
+				AND ap.remit_time = #{withdrawalApply.remitTime}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

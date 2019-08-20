@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.salesMachineSpec.mapper.SalesMachineSpecMapper">
+
+	<resultMap id="salesMachineMap" type="com.pig4cloud.pig.goods.salesMachineSpec.entity.SalesMachineSpec">
+		<id property="id" column="id"/>
+		<result property="provider" column="provider"/>
+		<result property="spec" column="spec"/>
+		<result property="tradePrice" column="trade_price"/>
+		<result property="aisleCount" column="aisle_count"/>
+		<result property="protocol" column="protocol"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="creatorName" column="creator_name"/>
+		<result property="createDate" column="create_date"/>
+		<result property="modifierId" column="modifier_id"/>
+		<result property="modifierName" column="modifier_name"/>
+		<result property="updateTime" column="update_time"/>
+	</resultMap>
+
+	<!--salesMachine简单分页查询-->
+	<select id="getSalesMachineSpecPage" resultMap="salesMachineMap">
+		SELECT
+		s.id,
+		s.provider,
+		s.spec,
+		s.trade_price,
+		s.aisle_count,
+		s.protocol,
+		s.creator_id,
+		( SELECT u.show_name FROM sys_user u WHERE u.user_id = s.creator_id ) AS creator_name,
+		s.create_date,
+		s.modifier_id,
+		( SELECT u.show_name FROM sys_user u WHERE u.user_id = s.modifier_id ) AS modifier_name,
+		s.update_time
+		FROM
+		fx_sales_machine_spec s
+		<where>
+			<if test="salesMachineSpec.provider != null and salesMachineSpec.provider.trim() != ''">
+				AND s.provider like concat('%',#{salesMachineSpec.provider},'%')
+			</if>
+			<if test="salesMachineSpec.spec != null and salesMachineSpec.spec.trim() != ''">
+				AND s.spec like concat('%',#{salesMachineSpec.spec},'%')
+			</if>
+			<if test="salesMachineSpec.protocol != null and salesMachineSpec.protocol.trim() != ''">
+				AND s.protocol like concat('%',#{salesMachineSpec.protocol},'%')
+			</if>
+			<if test="salesMachineSpec.aisleCount != null">
+				AND s.aisle_count = #{salesMachineSpec.aisleCount}
+			</if>
+		</where>
+	</select>
+
+</mapper>

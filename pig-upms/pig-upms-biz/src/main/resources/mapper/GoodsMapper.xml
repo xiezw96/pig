@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.goods.mapper.GoodsMapper">
+
+	<resultMap id="goodsMap" type="com.pig4cloud.pig.goods.goods.entity.Goods">
+		<id property="id" column="id"/>
+		<result property="category" column="category"/>
+		<result property="code" column="code"/>
+		<result property="name" column="name"/>
+		<result property="categoryName" column="categoryName"/>
+		<result property="title" column="title"/>
+		<result property="sellingPoints" column="selling_points"/>
+		<result property="status" column="status"/>
+		<result property="attId" column="att_id"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createDate" column="create_date"/>
+		<result property="modifierId" column="modifier_id"/>
+		<result property="updateTime" column="update_time"/>
+		<result property="isShareProfit" column="is_share_profit"/>
+		<result property="logisticsType" column="logistics_type"/>
+		<collection property="picList" ofType="com.pig4cloud.pig.goods.goodsPic.entity.GoodsPic"
+					select="com.pig4cloud.pig.goods.goodsPic.mapper.GoodsPicMapper.listGoodsPicByGoodsId" column="id">
+		</collection>
+		<collection property="sepPriceList" ofType="com.pig4cloud.pig.goods.goodsSpePrice.entity.GoodsSpePrice"
+					select="com.pig4cloud.pig.goods.goodsSpePrice.mapper.GoodsSpePriceMapper.listSpePriceByGoodsId"
+					column="id">
+		</collection>
+		<collection property="groupRelList" ofType="com.pig4cloud.pig.goods.goodsGroupRel.entity.GoodsGroupRel"
+					select="com.pig4cloud.pig.goods.goodsGroupRel.mapper.GoodsGroupRelMapper.listGroupRelByGoodsId"
+					column="id">
+		</collection>
+	</resultMap>
+
+	<!--goods简单分页查询-->
+	<select id="getGoodsPage" resultMap="goodsMap">
+		SELECT
+		goods.id,
+		category,
+		category.`NAME` AS categoryName,
+		`CODE`,
+		goods.`NAME`,
+		title,
+		selling_points,
+		`STATUS`,
+		goods.att_id,
+		goods.creator_id,
+		goods.create_date,
+		is_share_profit,
+		modifier_id,
+		update_time,
+		logistics_type
+		FROM
+		fx_goods goods
+		LEFT JOIN fx_goods_category category ON goods.category = category.id
+		<where>
+			<if test="goods.id != null">
+				AND id = #{goods.id}
+			</if>
+			<if test="goods.category != null">
+				AND category = #{goods.category}
+			</if>
+			<if test="goods.name != null and goods.name.trim() != ''">
+				AND (goods.name like concat('%',#{goods.name},'%') OR goods.title like concat('%',#{goods.name},'%') OR
+				goods.code like concat('%',#{goods.name},'%'))
+			</if>
+			<if test="goods.status != null">
+				AND goods.status = #{goods.status}
+			</if>
+			<if test="goods.groupRelId != null">
+				AND EXISTS ( SELECT 1 FROM fx_goods_group_rel rel WHERE rel.goods_id = goods.id AND rel.goods_group_id =
+				#{goods.groupRelId} )
+			</if>
+		</where>
+	</select>
+
+	<select id="getGoodsById" resultMap="goodsMap">
+		SELECT
+		`goods`.id,
+		category,
+		`category`.name AS categoryName,
+		code,
+		`goods`.name,
+		title,
+		selling_points,
+		status,
+		`goods`.creator_id,
+		`goods`.create_date,
+		modifier_id,
+		update_time
+		FROM fx_goods `goods`
+		left join fx_goods_category `category` on `goods`.category = `category`.id
+		<where>
+			<if test="id != null">
+				`goods`.id = #{id}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,24 @@
+server:
+  port: 4000
+
+spring:
+  application:
+    name: pig-upms
+  # 配置中心
+  cloud:
+    consul:
+      host: pig-consul
+      port: 8500
+      discovery:
+        hostname: pig-upms
+        datacenters:
+          fuzhou: fuzhou
+        aclToken: 5ce8e68c-b704-5485-5ecd-29825b9c9cc9
+      config:
+        enabled: true #false禁用Consul配置，默认true
+        aclToken: f37d09cd-958a-8b2b-266c-b24d96582962
+        watch:
+          enabled: true
+        format: YAML    # 表示consul上面文件的格式 有四种 YAML PROPERTIES KEY-VALUE FILES
+  profiles:
+    active: dev

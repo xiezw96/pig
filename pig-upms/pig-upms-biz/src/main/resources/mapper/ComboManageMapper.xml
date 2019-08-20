@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.comboManage.mapper.ComboManageMapper">
+
+	<resultMap id="comboManageMap" type="com.pig4cloud.pig.settings.comboManage.entity.ComboManage">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="type" column="type"/>
+		<result property="goodPrice" column="good_price"/>
+		<result property="voucherId" column="voucher_id"/>
+		<result property="voucherName" column="voucher_name"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="creatorName" column="creator_name"/>
+		<result property="createDate" column="create_date"/>
+		<collection property="detailList" ofType="com.pig4cloud.pig.settings.comboDetail.entity.ComboDetail"
+					select="com.pig4cloud.pig.settings.comboDetail.mapper.ComboDetailMapper.getComboDetailByComboId"
+					column="id">
+		</collection>
+		<collection property="machineList" ofType="com.pig4cloud.pig.settings.comboMachine.entity.ComboMachine"
+					select="com.pig4cloud.pig.settings.comboMachine.mapper.ComboMachineMapper.getComboMachineByComboId"
+					column="id">
+		</collection>
+	</resultMap>
+	<sql id="selectComboSql">
+		c.id,
+		c.`name`,
+		c.type,
+		c.good_price,
+		c.voucher_id,
+		v.`name` AS voucher_name,
+		c.creator_id,
+		c.create_date,
+		u.show_name AS creator_name
+		FROM
+		fx_combo_manage c
+		LEFT JOIN sys_user u ON u.user_id = creator_id
+		LEFT JOIN fx_voucher v ON c.voucher_id = v.id
+	</sql>
+	<!--comboManage简单分页查询-->
+	<select id="getComboManagePage" resultMap="comboManageMap">
+		SELECT
+		<include refid="selectComboSql"/>
+		<where>
+			<if test="comboManage.id != null">
+				AND c.id = #{comboManage.id}
+			</if>
+			<if test="comboManage.name != null and comboManage.name.trim() != ''">
+				AND c.name = #{comboManage.name}
+			</if>
+			<if test="comboManage.type != null">
+				AND c.type = #{comboManage.type}
+			</if>
+			<if test="comboManage.goodPrice != null">
+				AND c.good_price = #{comboManage.goodPrice}
+			</if>
+			<if test="comboManage.voucherId != null">
+				AND c.voucher_id = #{comboManage.voucherId}
+			</if>
+			<if test="comboManage.creatorId != null">
+				AND c.creator_id = #{comboManage.creatorId}
+			</if>
+		</where>
+	</select>
+	<select id="getComboById" resultMap="comboManageMap">
+		SELECT
+		<include refid="selectComboSql"/>
+		<where>
+			<if test="id != null">
+				AND c.id = #{id}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

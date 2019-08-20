@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.voucherGrantRecord.mapper.VoucherGrantRecordMapper">
+
+	<resultMap id="voucherGrantRecordMap"
+			   type="com.pig4cloud.pig.settings.voucherGrantRecord.entity.VoucherGrantRecord">
+		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+		<result property="voucherId" column="voucher_id"/>
+		<result property="grantType" column="grant_type"/>
+		<result property="createDate" column="create_date"/>
+		<result property="isConsumer" column="is_consumer"/>
+		<result property="voucherName" column="voucherName"/>
+		<result property="price" column="price"/>
+		<result property="minPrice" column="min_price"/>
+		<result property="startTime" column="start_time"/>
+		<result property="endTime" column="end_time"/>
+		<result property="agentName" column="agentName"/>
+	</resultMap>
+	<sql id="voucherGrantRecordSql">
+	  record.id,
+      record.user_id,
+      record.voucher_id,
+      record.grant_type,
+      record.create_date,
+      record.is_consumer,
+      voucher.name AS voucherName,
+      voucher.price,
+      voucher.min_price,
+      voucher.start_time,
+      voucher.end_time,
+      agent.name AS agentName
+	</sql>
+	<!--voucherGrantRecord简单分页查询-->
+	<select id="getVoucherGrantRecordPage" resultMap="voucherGrantRecordMap">
+		SELECT
+		<include refid="voucherGrantRecordSql"/>
+		FROM fx_voucher_grant_record record
+		left join fx_voucher voucher on record.voucher_id = voucher.id
+		left join fx_agent agent on record.user_id = agent.agent_id
+		<where>
+			<if test="voucherGrantRecord.id != null">
+				AND id = #{voucherGrantRecord.id}
+			</if>
+			<if test="voucherGrantRecord.userId != null">
+				AND user_id = #{voucherGrantRecord.userId}
+			</if>
+			<if test="voucherGrantRecord.voucherId != null">
+				AND voucher_id = #{voucherGrantRecord.voucherId}
+			</if>
+			<if test="voucherGrantRecord.createDate != null and voucherGrantRecord.createDate.trim() != ''">
+				AND create_date = #{voucherGrantRecord.createDate}
+			</if>
+			<if test="voucherGrantRecord.isConsumer != null and voucherGrantRecord.isConsumer.trim() != ''">
+				AND is_consumer = #{voucherGrantRecord.isConsumer}
+			</if>
+		</where>
+	</select>
+
+	<select id="getVoucherGrantRecordById" resultMap="voucherGrantRecordMap">
+		SELECT
+		<include refid="voucherGrantRecordSql"/>
+		FROM fx_voucher_grant_record record
+		left join fx_voucher voucher on record.voucher_id = voucher.id
+		left join fx_agent agent on record.user_id = agent.agent_id
+		<where>
+			<if test="id != null">
+				AND id = #{id}
+			</if>
+		</where>
+	</select>
+
+</mapper>

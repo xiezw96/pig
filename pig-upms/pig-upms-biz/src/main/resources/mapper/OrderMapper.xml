@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.order.order.mapper.OrderMapper">
+
+	<resultMap id="orderMap" type="com.pig4cloud.pig.order.order.entity.Order">
+		<id property="id" column="id"/>
+		<result property="code" column="code"/>
+		<result property="type" column="type"/>
+		<result property="totalMoney" column="total_money"/>
+		<result property="machineId" column="machine_id"/>
+		<result property="aisleId" column="aisle_id"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createTime" column="create_time"/>
+		<result property="sendTime" column="send_time"/>
+		<result property="name" column="name"/>
+		<result property="phone" column="phone"/>
+		<result property="privince" column="privince"/>
+		<result property="city" column="city"/>
+		<result property="area" column="area"/>
+		<result property="address" column="address"/>
+		<result property="logisticsCompany" column="logistics_company"/>
+		<result property="logisticsCode" column="logistics_code"/>
+		<result property="logisticsOperatorId" column="logistics_operator_id"/>
+		<result property="status" column="status"/>
+		<result property="payStatus" column="pay_status"/>
+		<result property="payTime" column="pay_time"/>
+		<result property="remark" column="remark"/>
+		<result property="isSettlement" column="is_settlement"/>
+		<result property="operatorId" column="operator_id"/>
+		<result property="operatorName" column="operator_name"/>
+		<result property="operationTime" column="operation_time"/>
+		<collection property="orderDetails" column="id" ofType="com.pig4cloud.pig.order.orderDetail.entity.OrderDetail"
+					select="com.pig4cloud.pig.order.orderDetail.mapper.OrderDetailMapper.getOrderDetailsByOrderId"/>
+	</resultMap>
+
+	<resultMap id="logisticsOrderMap" type="com.pig4cloud.pig.order.order.entity.LogisticsOrder">
+		<id property="id" column="id"/>
+		<result property="code" column="code"/>
+		<result property="sendTime" column="send_time"/>
+		<result property="agentId" column="agent_id"/>
+		<result property="agentName" column="agent_name"/>
+		<result property="name" column="name"/>
+		<result property="phone" column="phone"/>
+		<result property="privince" column="privince"/>
+		<result property="city" column="city"/>
+		<result property="area" column="area"/>
+		<result property="address" column="address"/>
+		<result property="logisticsCompany" column="logistics_company"/>
+		<result property="logisticsCode" column="logistics_code"/>
+		<result property="logisticsOperatorId" column="logistics_operator_id"/>
+		<result property="logisticsOperatorName" column="logistics_operator_name"/>
+		<result property="remark" column="remark"/>
+		<result property="status" column="status"/>
+		<result property="createTime" column="create_time"/>
+		<collection property="orderDetails" column="id" ofType="com.pig4cloud.pig.order.orderDetail.entity.OrderDetail"
+					select="com.pig4cloud.pig.order.orderDetail.mapper.OrderDetailMapper.getOrderDetailsByOrderId"/>
+	</resultMap>
+
+	<!--order简单分页查询-->
+	<select id="getOrderPage" resultMap="orderMap">
+		SELECT
+		id,
+		code,
+		type,
+		total_money,
+		machine_id,
+		aisle_id,
+		creator_id,
+		create_time,
+		send_time,
+		logistics_code,
+		`name`,
+		phone,
+		privince,
+		city,
+		area,
+		address,
+		logistics_company,
+		logistics_code,
+		logistics_operator_id,
+		status,
+		pay_status,
+		pay_time,
+		remark,
+		is_settlement,
+		operator_id,
+		operation_time
+		FROM fx_order
+		<where>
+			creator_id = #{order.creatorId}
+			<if test="order.createStartTime != null and order.createStartTime.trim() != ''">
+				AND create_time &gt;= #{order.createStartTime}
+			</if>
+			<if test="order.createEndTime != null and order.createEndTime.trim() != ''">
+				AND create_time &lt;= #{order.createEndTime}
+			</if>
+		</where>
+		order by create_time DESC,pay_time DESC
+	</select>
+
+	<select id="getOrderDayMoneySum" resultType="java.math.BigDecimal">
+		SELECT
+		sum( o1.total_money )
+		FROM
+		(SELECT
+		o.total_money,
+		ag.agent_id,
+		o.pay_time
+		FROM
+		fx_order o,
+		fx_user u
+		LEFT JOIN fx_agent ag ON ag.agent_id = u.of_proxy
+		WHERE
+		o.creator_id = u.id
+		AND o.type = 1
+		AND o.machine_id IS NULL UNION ALL
+		SELECT
+		o.total_money,
+		m.belongs_user as agent_id,
+		o.pay_time
+		FROM
+		fx_order o,
+		fx_sales_machine m
+		WHERE
+		o.machine_id = m.id
+		AND o.type = 1
+		AND o.machine_id IS NOT NULL) o1
+		WHERE
+		o1.agent_id = #{userId}
+		<if test="date != null and date != ''">
+			AND date_format( o1.pay_time, '%Y-%m-%d' ) = #{date}
+		</if>
+	</select>
+
+	<select id="getOrderDaySum" resultType="int">
+		SELECT
+		count( 1 )
+		FROM
+		(
+		SELECT
+		o.total_money,
+		ag.agent_id,
+		o.pay_time
+		FROM
+		fx_order o,
+		fx_user u
+		LEFT JOIN fx_agent ag ON ag.agent_id = u.of_proxy
+		WHERE
+		o.creator_id = u.id
+		AND o.type = 1
+		AND o.machine_id IS NULL UNION ALL
+		SELECT
+		o.total_money,
+		m.belongs_user AS agent_id,
+		o.pay_time
+		FROM
+		fx_order o,
+		fx_sales_machine m
+		WHERE
+		o.machine_id = m.id
+		AND o.type = 1
+		AND o.machine_id IS NOT NULL
+		) o1
+		WHERE
+		o1.agent_id = #{userId}
+		<if test="date != null and date != ''">
+			AND date_format( o1.pay_time, '%Y-%m-%d' ) = #{date}
+		</if>
+		<if test="payStatus != null">
+			AND o1.pay_status = #{pay_status}
+		</if>
+	</select>
+
+	<select id="getGoodsOrderPage" resultType="com.pig4cloud.pig.order.order.entity.GoodsOrder">
+		SELECT
+		*
+		FROM
+		(
+		SELECT
+		o.`code` AS orderCode,
+		o.type AS orderType,
+		o.create_time AS orderCreateTime,
+		o.total_money AS orderTotalMoney,
+		o.machine_id,
+		m.`name` AS machineName,
+		0 AS payWay,
+		CASE
+		o.type
+		WHEN 0 THEN
+		ag.`name` ELSE u.nickname
+		END AS creatorName,
+		CASE
+		WHEN m.id is NULL THEN
+		'线上商城' ELSE bl.`name`
+		END AS belongsUser,
+		od.goods_name,
+		od.goods_att_id,
+		od.goods_spe1,
+		od.goods_spe2,
+		goods.category AS goodsCategory,
+		goods.id AS goodsId,
+		od.sale_price,
+		od.trade_price,
+		od.pay_num,
+		od.pay_price
+		FROM
+		fx_order_detail od
+		LEFT JOIN fx_goods goods ON goods.id = od.goods_id,
+		fx_order o
+		LEFT JOIN fx_agent ag ON ag.agent_id = o.creator_id
+		LEFT JOIN fx_user u ON u.id = o.creator_id
+		LEFT JOIN fx_sales_machine m ON m.id = o.machine_id
+		LEFT JOIN fx_agent bl ON bl.agent_id = m.belongs_user
+		WHERE
+		o.id = od.order_id
+		) go
+		<where>
+			<if test="order.goodsName != null and order.goodsName.trim() !=''">
+				go.goods_name like concat('%',#{order.goodsName},'%')
+			</if>
+			<if test="order.machineName != null and order.machineName.trim() !=''">
+				go.machineName like concat('%',#{order.machineName},'%')
+			</if>
+			<if test="order.belongsUser != null and order.belongsUser.trim() !=''">
+				go.belongsUser like concat('%',#{order.belongsUser},'%')
+			</if>
+			<if test="order.creatorName != null and order.creatorName.trim() !=''">
+				go.creatorName like concat('%',#{order.creatorName},'%')
+			</if>
+			<if test="order.payWay != null ">
+				go.payWay = #{order.payWay}
+			</if>
+			<if test="order.orderCode != null and order.orderCode.trim() !=''">
+				go.orderCode like concat('%',#{order.orderCode},'%')
+			</if>
+			<if test="order.groupRelId != null">
+				AND EXISTS ( SELECT 1 FROM fx_goods_group_rel rel WHERE rel.goods_id = go.goodsId AND
+				rel.goods_group_id =
+				#{order.groupRelId} )
+			</if>
+			<if test="order.category != null">
+				AND go.goodsCategory = #{order.category}
+			</if>
+			<if test="order.orderCreateStartTime != null and order.orderCreateStartTime.trim() !=''">
+				AND go.orderCreateTime &gt;= #{order.orderCreateStartTime}
+			</if>
+			<if test="order.orderCreateEndTime != null and order.orderCreateEndTime.trim() !=''">
+				AND go.orderCreateTime &lt;= #{order.orderCreateEndTime}
+			</if>
+		</where>
+		order by go.orderCreateTime desc
+	</select>
+
+	<select id="getAllAgentOrderPage" resultType="com.pig4cloud.pig.order.order.entity.AgentOrder">
+		SELECT
+		o.id,
+		o.CODE,
+		o.type,
+		o.total_money,
+		o.machine_id,
+		o.aisle_id,
+		o.creator_id,
+		o.create_time,
+		o.send_time,
+		o.`name`,
+		o.phone,
+		o.privince,
+		o.city,
+		o.area,
+		o.address,
+		o.logistics_company,
+		o.logistics_code,
+		o.logistics_operator_id,
+		o.STATUS,
+		o.pay_status,
+		o.pay_time,
+		o.remark,
+		o.operator_id,
+		u.show_name as operator_name,
+		o.operation_time,
+		( SELECT sum( 1 ) FROM fx_order_detail od WHERE od.order_id = o.id ) AS goodsTypeCount,
+		( SELECT sum( od.pay_num ) FROM fx_order_detail od WHERE od.order_id = o.id ) AS goodsCount,
+		ag.`name` AS agentName,
+		( SELECT sum( od.pay_price ) FROM fx_order_detail od WHERE od.order_id = o.id ) AS payPrice,
+		CASE
+		WHEN c.id IS NULL THEN
+		0 ELSE 1
+		END AS sourceType
+		FROM
+		fx_order o
+		LEFT JOIN fx_agent ag ON o.creator_id = ag.agent_id
+		LEFT JOIN fx_agent_combo c ON c.order_id = o.id
+		LEFT JOIN sys_user u ON u.user_id = o.operator_id
+		<where>
+			o.type = 0
+			<if test="agentOrder.agentName != null and agentOrder.agentName.trim() != ''">
+				AND ag.name like concat('%',#{agentOrder.agentName},'%')
+			</if>
+			<if test="agentOrder.code != null and agentOrder.code.trim() != ''">
+				AND o.code like concat('%',#{agentOrder.code},'%')
+			</if>
+			<if test="agentOrder.status != null">
+				AND ag.status = #{agentOrder.status}
+			</if>
+			<if test="agentOrder.sourceType != null and agentOrder.sourceType == 0">
+				AND c.id is null
+			</if>
+			<if test="agentOrder.sourceType != null and agentOrder.sourceType == 1">
+				AND c.id is not null
+			</if>
+			<if test="agentOrder.createStartTime != null and agentOrder.createStartTime.trim() != ''">
+				AND o.create_time &gt;= #{agentOrder.createStartTime}
+			</if>
+			<if test="agentOrder.createEndTime != null and agentOrder.createEndTime.trim() != ''">
+				AND o.create_time &lt;= #{agentOrder.createEndTime}
+			</if>
+		</where>
+	</select>
+
+	<!-- 查询代理商物流订单 -->
+	<select id="getLogisticsOrderPage" resultMap="logisticsOrderMap">
+		SELECT
+		o.id,
+		o.`code`,
+		o.send_time,
+		o.create_time,
+		ag.agent_id,
+		ag.`name` AS agent_name,
+		o.`name`,
+		o.phone,
+		o.privince,
+		o.city,
+		o.area,
+		o.address,
+		o.logistics_company,
+		o.logistics_code,
+		o.logistics_operator_id,
+		su.show_name as logistics_operator_name,
+		o.`status`,
+		o.remark
+		FROM
+		fx_order o
+		LEFT JOIN fx_agent ag ON ag.agent_id = o.creator_id
+		LEFT JOIN sys_user su ON su.user_id = o.logistics_operator_id
+		<where>
+			o.type = 0
+			AND o.`status` in (1,2)
+			<if test="order.agentName != null and order.agentName.trim() != ''">
+				AND (ag.name like concat('%',#{order.agentName},'%') or ag.phone like
+				concat('%',#{order.agentName},'%'))
+			</if>
+			<if test="order.status != null">
+				AND o.status = #{order.status}
+			</if>
+			<if test="order.code != null and order.code.trim() != ''">
+				AND o.code = #{order.code}
+			</if>
+			<if test="order.sendStartTime != null and order.sendStartTime.trim() != ''">
+				AND o.send_time &gt;= #{order.sendStartTime}
+			</if>
+			<if test="order.sendEndTime != null and order.sendEndTime.trim() != ''">
+				AND o.send_time &lt;= #{order.sendEndTime}
+			</if>
+			<if test="order.createStartTime != null and order.createStartTime.trim() != ''">
+				AND o.create_time &gt;= #{order.createStartTime}
+			</if>
+			<if test="order.createEndTime != null and order.createEndTime.trim() != ''">
+				AND o.create_time &lt;= #{order.createEndTime}
+			</if>
+		</where>
+		order by pay_time desc
+	</select>
+
+</mapper>

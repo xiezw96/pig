@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.goodsCategory.mapper.GoodsCategoryMapper">
+
+  <resultMap id="goodsCategoryMap" type="com.pig4cloud.pig.goods.goodsCategory.entity.GoodsCategory">
+                  <id property="id" column="id"/>
+                        <result property="name" column="name"/>
+                        <result property="goodsNum" column="goodsNum"/>
+                        <result property="username" column="username"/>
+                        <result property="sort" column="sort"/>
+                        <result property="creatorId" column="creator_id"/>
+                        <result property="createDate" column="create_date"/>
+            </resultMap>
+	<sql id="getGoodsCategorySql">
+		id,
+        name,
+        sort,
+        (select count(1) from fx_goods where category = id) AS `goodsNum`,
+        creator_id,
+        `user`.username AS uaername,
+        create_date
+	</sql>
+  <!--goodsCategory简单分页查询-->
+  <select id="getGoodsCategoryPage" resultMap="goodsCategoryMap">
+    SELECT
+          <include refid="getGoodsCategorySql"/>
+      FROM fx_goods_category category left join sys_user `user` on category.creator_id = `user`.user_id
+    <where>
+              <if test="goodsCategory.id != null and goodsCategory.id.trim() != ''">
+          AND category.id = #{goodsCategory.id}
+        </if>
+              <if test="goodsCategory.name != null and goodsCategory.name.trim() != ''">
+          AND category.name = #{goodsCategory.name}
+        </if>
+              <if test="goodsCategory.sort != null and goodsCategory.sort.trim() != ''">
+          AND category.sort = #{goodsCategory.sort}
+        </if>
+              <if test="goodsCategory.creatorId != null and goodsCategory.creatorId.trim() != ''">
+          AND category.creator_id = #{goodsCategory.creatorId}
+        </if>
+              <if test="goodsCategory.createDate != null and goodsCategory.createDate.trim() != ''">
+          AND category.create_date = #{goodsCategory.createDate}
+        </if>
+          </where>
+  </select>
+	
+  <select id="selectList" resultMap="goodsCategoryMap">
+    SELECT
+          <include refid="getGoodsCategorySql"/>
+      FROM fx_goods_category category left join sys_user `user` on category.creator_id = `user`.user_id
+    <where>
+              <if test="goodsCategory.id != null and goodsCategory.id.trim() != ''">
+          AND category.id = #{goodsCategory.id}
+        </if>
+              <if test="goodsCategory.name != null and goodsCategory.name.trim() != ''">
+          AND category.name = #{goodsCategory.name}
+        </if>
+              <if test="goodsCategory.sort != null and goodsCategory.sort.trim() != ''">
+          AND category.sort = #{goodsCategory.sort}
+        </if>
+              <if test="goodsCategory.creatorId != null and goodsCategory.creatorId.trim() != ''">
+          AND category.creator_id = #{goodsCategory.creatorId}
+        </if>
+              <if test="goodsCategory.createDate != null and goodsCategory.createDate.trim() != ''">
+          AND category.create_date = #{goodsCategory.createDate}
+        </if>
+          </where>
+  </select>
+
+</mapper>

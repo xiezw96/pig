@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.accountmanage.user.mapper.UserMapper">
+
+	<resultMap id="userMap" type="com.pig4cloud.pig.accountmanage.user.entity.User">
+		<id property="id" column="id"/>
+		<result property="nickname" column="nickname"/>
+		<result property="sex" column="sex"/>
+		<result property="birthday" column="birthday"/>
+		<result property="image" column="image"/>
+		<result property="region" column="region"/>
+		<result property="phone" column="phone"/>
+		<result property="registerId" column="register_id"/>
+		<result property="registerEq" column="register_eq"/>
+		<result property="registerDate" column="register_date"/>
+		<result property="loginTime" column="login_time"/>
+		<result property="loginIp" column="login_ip"/>
+		<result property="ofProxy" column="of_proxy"/>
+		<result property="ofProxyName" column="ofProxyName"/>
+		<result property="totleConsumption" column="totle_consumption"/>
+		<result property="recentConsumption" column="recent_consumption"/>
+		<result property="wxOpenid" column="wx_openid"/>
+		<result property="state" column="state"/>
+	</resultMap>
+
+	<!--user简单分页查询-->
+	<select id="getUserPage" resultMap="userMap">
+		SELECT
+		u.id,
+		u.nickname,
+		u.sex,
+		u.birthday,
+		u.image,
+		u.region,
+		u.phone,
+		u.register_id,
+		u.register_eq,
+		u.register_date,
+		u.login_time,
+		u.login_ip,
+		u.of_proxy,
+		a.`name` as ofProxyName,
+		u.totle_consumption,
+		u.recent_consumption,
+		u.wx_openid,
+		u.state
+		FROM
+		fx_user u left join fx_agent a ON u.of_proxy = a.agent_id
+		<where>
+			<if test="user.id != null and user.id.trim() != ''">
+				AND u.id = #{user.id}
+			</if>
+			<if test="user.nickname != null and user.nickname.trim() != ''">
+				AND u.nickname = #{user.nickname}
+			</if>
+			<if test="user.sex != null">
+				AND u.sex = #{user.sex}
+			</if>
+			<if test="user.birthday != null and user.birthday.trim() != ''">
+				AND u.birthday = #{user.birthday}
+			</if>
+			<if test="user.image != null and user.image.trim() != ''">
+				AND u.image = #{user.image}
+			</if>
+			<if test="user.region != null and user.region.trim() != ''">
+				AND u.region = #{user.region}
+			</if>
+			<if test="user.phone != null and user.phone.trim() != ''">
+				AND u.phone = #{user.phone}
+			</if>
+			<if test="user.registerId != null and user.registerId.trim() != ''">
+				AND u.register_id = #{user.registerId}
+			</if>
+			<if test="user.registerEq != null and user.registerEq.trim() != ''">
+				AND u.register_eq = #{user.registerEq}
+			</if>
+			<if test="user.registerStartDate != null and user.registerStartDate.trim() != ''">
+				AND u.register_date &gt;= #{user.registerStartDate}
+			</if>
+			<if test="user.registerEndDate != null and user.registerEndDate.trim() != ''">
+				AND u.register_date &lt;= #{user.registerEndDate}
+			</if>
+			<if test="user.loginTime != null">
+				AND u.login_time = #{user.loginTime}
+			</if>
+			<if test="user.state != null">
+				AND u.state = #{user.state}
+			</if>
+			<if test="user.loginIp != null and user.loginIp.trim() != ''">
+				AND login_ip = #{user.loginIp}
+			</if>
+			<if test="user.ofProxyName != null and user.ofProxyName.trim() != ''">
+				AND (a.`name` like concat('%',#{user.ofProxyName},'%') or a.phone like concat('%',#{user.ofProxyName},'%'))
+			</if>
+			<if test="user.totleConsumption != null and user.totleConsumption.trim() != ''">
+				AND u.totle_consumption = #{user.totleConsumption}
+			</if>
+			<if test="user.recentConsumption != null and user.recentConsumption.trim() != ''">
+				AND u.recent_consumption = #{user.recentConsumption}
+			</if>
+			<if test="user.wxOpenid != null and user.wxOpenid.trim() != ''">
+				AND u.wx_openid = #{user.wxOpenid}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

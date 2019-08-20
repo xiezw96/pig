@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.levelManage.mapper.LevelManageMapper">
+
+	<resultMap id="levelManageMap" type="com.pig4cloud.pig.settings.levelManage.entity.LevelManage">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="weight" column="weight"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+
+	<!--levelManage简单分页查询-->
+	<select id="getLevelManagePage" resultMap="levelManageMap">
+		SELECT
+		id,
+		name,
+		weight,
+		creator_id,
+		create_date
+		FROM fx_level_manage
+		<where>
+			<if test="levelManage.id != null">
+				AND id = #{levelManage.id}
+			</if>
+			<if test="levelManage.name != null and levelManage.name.trim() != ''">
+				AND name = #{levelManage.name}
+			</if>
+			<if test="levelManage.weight != null">
+				AND weight = #{levelManage.weight}
+			</if>
+			<if test="levelManage.creatorId != null">
+				AND creator_id = #{levelManage.creatorId}
+			</if>
+			<if test="levelManage.createDate != null ">
+				AND create_date = #{levelManage.createDate}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

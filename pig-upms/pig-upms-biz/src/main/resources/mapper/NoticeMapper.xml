@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.notice.mapper.NoticeMapper">
+
+	<resultMap id="noticeMap" type="com.pig4cloud.pig.settings.notice.entity.Notice">
+		<id property="id" column="id"/>
+		<result property="title" column="title"/>
+		<result property="period" column="period"/>
+		<result property="startTime" column="start_time"/>
+		<result property="endTime" column="end_time"/>
+		<result property="content" column="content"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createDate" column="create_date"/>
+		<result property="status" column="status"/>
+	</resultMap>
+
+	<!--notice简单分页查询-->
+	<select id="getNoticePage" resultMap="noticeMap">
+		SELECT
+		id,
+		title,
+		period,
+		start_time,
+		end_time,
+		content,
+		creator_id,
+		create_date,
+		status
+		FROM fx_notice
+		<where>
+			<if test="notice.id != null ">
+				AND id = #{notice.id}
+			</if>
+			<if test="notice.status != null">
+				AND status = #{notice.status}
+			</if>
+			<if test="notice.title != null and notice.title.trim() != ''">
+				AND title = #{notice.title}
+			</if>
+			<if test="notice.startTime != null">
+				AND start_time = #{notice.startTime}
+			</if>
+			<if test="notice.endTime != null">
+				AND end_time = #{notice.endTime}
+			</if>
+			<if test="notice.content != null and notice.content.trim() != ''">
+				AND content = #{notice.content}
+			</if>
+			<if test="notice.creatorId != null and notice.creatorId.trim() != ''">
+				AND creator_id = #{notice.creatorId}
+			</if>
+			<if test="notice.createDate != null and notice.createDate.trim() != ''">
+				AND create_date = #{notice.createDate}
+			</if>
+		</where>
+		order by create_date desc
+	</select>
+
+</mapper>

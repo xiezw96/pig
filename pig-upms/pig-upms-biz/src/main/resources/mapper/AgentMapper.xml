@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.accountmanage.agent.mapper.AgentMapper">
+
+	<resultMap id="agentMap" type="com.pig4cloud.pig.accountmanage.agent.entity.Agent">
+		<id property="agentId" column="agent_id"/>
+		<result property="name" column="name"/>
+		<result property="level" column="level"/>
+		<result property="photo" column="photo"/>
+		<result property="sex" column="sex"/>
+		<result property="birthday" column="birthday"/>
+		<result property="profit" column="profit"/>
+		<result property="childProfit" column="child_profit"/>
+		<result property="phone" column="phone"/>
+		<result property="newPhone" column="new_phone"/>
+		<result property="privince" column="privince"/>
+		<result property="city" column="city"/>
+		<result property="area" column="area"/>
+		<result property="company" column="company"/>
+		<result property="address" column="address"/>
+		<result property="wechatId" column="wechat_id"/>
+		<result property="newWechatId" column="new_wechat_id"/>
+		<result property="idCard" column="id_card"/>
+		<result property="referrerId" column="referrer_id"/>
+		<result property="referrerIds" column="referrer_ids"/>
+		<result property="identityCardFront" column="identity_card_front"/>
+		<result property="identityCardVerso" column="identity_card_verso"/>
+		<result property="newIdentityCardFront" column="new_identity_card_front"/>
+		<result property="newIdentityCardVerso" column="new_identity_card_verso"/>
+		<result property="bankAccountName" column="bank_account_name"/>
+		<result property="bankCardFront" column="bank_card_front"/>
+		<result property="bankCardVerso" column="bank_card_verso"/>
+		<result property="newBankAccountName" column="new_bank_account_name"/>
+		<result property="newBankCardFront" column="new_bank_card_front"/>
+		<result property="newBankCardVerso" column="new_bank_card_verso"/>
+		<result property="transactionPassword" column="transaction_password"/>
+		<result property="withdrawalPrice" column="withdrawal_price"/>
+		<result property="referralCode" column="referral_code"/>
+		<result property="auditRemark" column="audit_remark"/>
+		<result property="isSettlement" column="is_settlement"/>
+		<result property="activeStatus" column="active_status"/>
+		<result property="activeTime" column="active_time"/>
+		<result property="auditStatus" column="audit_status"/>
+		<result property="auditReqTime" column="audit_req_time"/>
+		<result property="auditorId" column="auditor_id"/>
+		<result property="auditTime" column="audit_time"/>
+		<result property="updateAuditStatus" column="update_audit_status"/>
+		<result property="updateAuditReqTime" column="update_audit_req_time"/>
+		<result property="updateAuditorId" column="update_auditor_id"/>
+		<result property="updateAuditTime" column="update_audit_time"/>
+		<result property="updateAuditRemark" column="update_audit_remark"/>
+	</resultMap>
+
+	<update id="setCommissionRatio">
+		update fx_agent set profit = #{ratio} where referrer_id = #{agentId}
+	</update>
+
+	<!--agent简单分页查询-->
+	<select id="getAgentPage" resultMap="agentMap">
+		SELECT
+		ag.`name`,
+		ag.`level`,
+		ag.photo,
+		ag.sex,
+		ag.birthday,
+		ag.phone,
+		ag.new_phone,
+		ag.profit,
+		ag.child_profit,
+		ag.privince,
+		ag.city,
+		ag.company,
+		ag.area,
+		ag.address,
+		ag.wechat_id,
+		ag.new_wechat_id,
+		ag.id_card,
+		ag.referrer_id,
+		ag.referrer_ids,
+		(select u.`name` from fx_agent u where u.agent_id = ag.referrer_id) as referrerName,
+		ag.identity_card_front,
+		ag.identity_card_verso,
+		ag.new_identity_card_front,
+		ag.new_identity_card_verso,
+		ag.bank_account_name,
+		ag.bank_card_front,
+		ag.bank_card_verso,
+		ag.new_bank_account_name,
+		ag.new_bank_card_front,
+		ag.new_bank_card_verso,
+		ag.transaction_password,
+		ag.withdrawal_price,
+		ag.referral_code,
+		ag.audit_remark,
+		ag.is_settlement,
+		ag.active_status,
+		ag.active_time,
+		ag.audit_status,
+		ag.auditor_id,
+		ag.audit_req_time,
+		(select u.show_name from sys_user u where u.user_id = ag.auditor_id) as auditorName,
+		ag.audit_time,
+		ag.update_audit_status,
+		ag.update_audit_req_time,
+		ag.update_auditor_id,
+		(select u.show_name from sys_user u where u.user_id = ag.update_auditor_id) as updateAuditorName,
+		ag.update_audit_time,
+		ag.update_audit_remark,
+		ag.agent_id
+		FROM fx_agent ag
+		<where>
+			<if test="agent.agentId != null">
+				AND ag.agent_id = #{agent.agentId}
+			</if>
+			<if test="agent.name != null and agent.name.trim() != ''">
+				AND ag.name like concat('%',#{agent.name},'%')
+			</if>
+			<if test="agent.level != null and agent.level.trim() != ''">
+				AND ag.level = #{agent.level}
+			</if>
+			<if test="agent.sex != null">
+				AND ag.sex = #{agent.sex}
+			</if>
+			<if test="agent.birthday != null ">
+				AND ag.birthday = #{agent.birthday}
+			</if>
+			<if test="agent.profit != null">
+				AND ag.profit = #{agent.profit}
+			</if>
+			<if test="agent.phone != null and agent.phone.trim() != ''">
+				AND ag.phone like concat('%',#{agent.phone},'%')
+			</if>
+			<if test="agent.privince != null and agent.privince.trim() != ''">
+				AND ag.privince = #{agent.privince}
+			</if>
+			<if test="agent.city != null and agent.city.trim() != ''">
+				AND ag.city = #{agent.city}
+			</if>
+			<if test="agent.area != null and agent.area.trim() != ''">
+				AND ag.area = #{agent.area}
+			</if>
+			<if test="agent.company != null and agent.company.trim() != ''">
+				AND ag.area like concat('%',#{agent.area},'%')
+			</if>
+			<if test="agent.address != null and agent.address.trim() != ''">
+				AND ag.address = #{agent.address}
+			</if>
+			<if test="agent.wechatId != null and agent.wechatId.trim() != ''">
+				AND ag.wechat_id = #{agent.wechatId}
+			</if>
+			<if test="agent.idCard != null and agent.idCard.trim() != ''">
+				AND ag.id_card = #{agent.idCard}
+			</if>
+			<if test="agent.referrerId != null">
+				AND ag.referrer_id = #{agent.referrerId}
+			</if>
+			<if test="agent.referralCode != null and agent.referralCode.trim() != ''">
+				AND ag.referral_code = #{agent.referralCode}
+			</if>
+			<if test="agent.auditremark != null and agent.auditremark.trim() != ''">
+				AND ag.audit_remark = #{agent.auditremark}
+			</if>
+			<if test="agent.isSettlement != null">
+				AND ag.is_settlement = #{agent.isSettlement}
+			</if>
+			<if test="agent.activeStatus != null">
+				AND ag.active_status = #{agent.activeStatus}
+			</if>
+			<if test="agent.auditStatus != null">
+				AND ag.audit_status = #{agent.auditStatus}
+			</if>
+			<if test="agent.auditorId != null">
+				AND ag.auditor_id = #{agent.auditorId}
+			</if>
+			<if test="agent.auditTime != null">
+				AND ag.audit_time = #{agent.auditTime}
+			</if>
+			<if test="agent.updateAuditStatus != null">
+				AND ag.update_audit_status = #{agent.updateAuditStatus}
+			</if>
+			<if test="agent.updateAuditorId != null">
+				AND ag.update_auditor_id = #{agent.updateAuditorId}
+			</if>
+			<if test="agent.updateAuditTime != null">
+				AND ag.update_audit_time = #{agent.updateAuditTime}
+			</if>
+			<if test="agent.updateAuditReqStartTime != null and agent.updateAuditReqStartTime.trim() != ''">
+				AND ag.update_audit_req_time &gt;= #{agent.updateAuditReqStartTime}
+			</if>
+			<if test="agent.updateAuditReqEndTime != null and agent.updateAuditReqEndTime.trim() != ''">
+				AND ag.update_audit_req_time &lt;= #{agent.updateAuditReqEndTime}
+			</if>
+		</where>
+	</select>
+
+	<select id="getAgentByPhoneOrReferralCode" resultType="com.pig4cloud.pig.accountmanage.agent.entity.Agent">
+		select
+		agent_id,
+		child_profit
+		from
+		fx_agent
+		where
+		referral_code = #{text} or phone = #{text}
+	</select>
+
+</mapper>

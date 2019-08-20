@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.salesMachineAisle.mapper.SalesMachineAisleMapper">
+
+	<resultMap id="salesMachineAisleMap" type="com.pig4cloud.pig.goods.salesMachineAisle.entity.SalesMachineAisle">
+		<id property="id" column="id"/>
+		<result property="machineId" column="machine_id"/>
+		<result property="code" column="code"/>
+		<result property="status" column="status"/>
+	</resultMap>
+
+	<select id="getSalesMachineAislePage" resultMap="salesMachineAisleMap">
+		SELECT
+		id,
+		machine_id,
+		`code`,
+		`status`
+		FROM fx_sales_machine_aisle
+		<where>
+			<if test="salesMachineAisle.id != null and salesMachineAisle.id.trim() != ''">
+				AND id = #{salesMachineAisle.id}
+			</if>
+			<if test="salesMachineAisle.machineId != null and salesMachineAisle.machineId.trim() != ''">
+				AND machine_id = #{salesMachineAisle.machineId}
+			</if>
+			<if test="salesMachineAisle.code != null and salesMachineAisle.code.trim() != ''">
+				AND code = #{salesMachineAisle.code}
+			</if>
+			<if test="salesMachineAisle.status != null and salesMachineAisle.status.trim() != ''">
+				AND status = #{salesMachineAisle.status}
+			</if>
+		</where>
+	</select>
+
+	<resultMap id="salesMachineAisleDetailMap"
+			   type="com.pig4cloud.pig.goods.salesMachineAisle.entity.SalesMachineAisleDetail">
+		<id property="id" column="id"/>
+		<result property="machineId" column="machine_id"/>
+		<result property="code" column="code"/>
+		<result property="status" column="status"/>
+		<collection property="aisleGoods"
+					ofType="com.pig4cloud.pig.goods.salesMachineAisleGoods.entity.SalesMachineAisleGoodsDetail"
+					select="com.pig4cloud.pig.goods.salesMachineAisleGoods.mapper.SalesMachineAisleGoodsMapper.getSalesMachineAisleGoodsDetailByAisleId"
+					column="id"/>
+	</resultMap>
+	<select id="getSalesMachineAisleDetailByMachineId" resultMap="salesMachineAisleDetailMap">
+		SELECT
+		a.id,
+		a.machine_id,
+		a.`code`,
+		a.`status`
+		FROM
+		fx_sales_machine_aisle a
+		WHERE
+		a.machine_id in
+		<foreach collection="machineIds" open="(" close=")" separator="," item="machineId">
+			#{machineId}
+		</foreach>
+	</select>
+
+</mapper>

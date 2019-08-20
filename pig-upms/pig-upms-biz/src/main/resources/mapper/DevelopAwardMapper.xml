@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.developAward.mapper.DevelopAwardMapper">
+
+  <resultMap id="developAwardMap" type="com.pig4cloud.pig.settings.developAward.entity.DevelopAward">
+                  <id property="id" column="id"/>
+                        <result property="awardMoney" column="award_money"/>
+                        <result property="creatorId" column="creator_id"/>
+                        <result property="createDate" column="create_date"/>
+            </resultMap>
+
+  <!--developAward简单分页查询-->
+  <select id="getDevelopAwardPage" resultMap="developAwardMap">
+    SELECT
+                  id,
+                        award_money,
+                        creator_id,
+                        create_date
+              FROM fx_develop_award
+    <where>
+              <if test="developAward.id != null and developAward.id.trim() != ''">
+          AND id = #{developAward.id}
+        </if>
+              <if test="developAward.awardMoney != null and developAward.awardMoney.trim() != ''">
+          AND award_money = #{developAward.awardMoney}
+        </if>
+              <if test="developAward.creatorId != null and developAward.creatorId.trim() != ''">
+          AND creator_id = #{developAward.creatorId}
+        </if>
+              <if test="developAward.createDate != null and developAward.createDate.trim() != ''">
+          AND create_date = #{developAward.createDate}
+        </if>
+          </where>
+  </select>
+
+
+
+</mapper>

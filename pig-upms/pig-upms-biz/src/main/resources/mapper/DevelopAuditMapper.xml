@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.accountmanage.developAudit.mapper.DevelopAuditMapper">
+
+	<resultMap id="developAuditMap" type="com.pig4cloud.pig.accountmanage.developAudit.entity.DevelopAudit">
+		<id property="id" column="id"/>
+		<result property="agentId" column="agent_id"/>
+		<result property="agentName" column="agent_name"/>
+		<result property="developNum" column="develop_num"/>
+		<result property="totalMoney" column="total_money"/>
+		<result property="originalTotalMoney" column="original_total_money"/>
+		<result property="commission" column="commission"/>
+		<result property="auditStatus" column="audit_status"/>
+		<result property="remark" column="remark"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="creatorName" column="creator_name"/>
+		<result property="createDate" column="create_date"/>
+		<result property="reqTime" column="req_time"/>
+	</resultMap>
+
+	<!--developAudit简单分页查询-->
+	<select id="getDevelopAuditPage" resultMap="developAuditMap">
+		SELECT
+		da.id,
+		da.agent_id,
+		a.`name` as agent_name,
+		da.develop_num,
+		da.total_money,
+		da.original_total_money,
+		da.commission,
+		da.audit_status,
+		da.remark,
+		da.creator_id,
+		u.show_name as creator_name,
+		da.create_date,
+		da.req_time
+		FROM fx_develop_audit da LEFT JOIN sys_user u ON u.user_id = da.creator_id,
+		fx_agent a
+		<where>
+			AND da.agent_id = a.agent_id
+			<if test="developAudit.agentId != null">
+				AND da.agent_id = #{developAudit.agentId}
+			</if>
+			<if test="developAudit.agentName != null and developAudit.agentName.trim() != ''">
+				AND a.name like concat('%',#{developAudit.agentName},'%')
+			</if>
+			<if test="developAudit.developNum != null">
+				AND da.develop_num = #{developAudit.developNum}
+			</if>
+			<if test="developAudit.auditStatus != null">
+				AND da.audit_status = #{developAudit.auditStatus}
+			</if>
+			<if test="developAudit.remark != null and developAudit.remark.trim() != ''">
+				AND da.remark = #{developAudit.remark}
+			</if>
+			<if test="developAudit.reqStartTime != null and developAudit.reqStartTime.trim() != ''">
+				AND da.req_time &gt;= #{developAudit.reqStartTime}
+			</if>
+			<if test="developAudit.reqEndTime != null and developAudit.reqEndTime.trim() != ''">
+				AND da.req_time &lt;= #{developAudit.reqEndTime}
+			</if>
+			<if test="developAudit.creatorId != null">
+				AND da.creator_id = #{developAudit.creatorId}
+			</if>
+			<if test="developAudit.createDate != null and developAudit.createDate.trim() != ''">
+				AND da.create_date = #{developAudit.createDate}
+			</if>
+		</where>
+	</select>
+	<select id="getDevelopSumMonty" resultType="java.math.BigDecimal">
+		SELECT
+		SUM( au.original_total_money )
+		FROM
+		fx_develop_audit au
+		WHERE
+		au.audit_status = 1
+		AND au.agent_id = #{agentId}
+	</select>
+
+	<select id="getDevelopSettlementAgentId" resultType="java.lang.Integer">
+		SELECT
+		agent_id
+		FROM
+		fx_agent A
+		WHERE
+		NOT EXISTS ( SELECT 1 FROM fx_develop_audit_detail d WHERE d.agent_id = A.agent_id )
+		AND A.referrer_id = #{agentId}
+	</select>
+
+</mapper>

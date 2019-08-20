@@ -1,0 +1,112 @@
+version: '2'
+networks:
+  pig:
+services:
+  pig-mysql:
+    image: mysql
+    ports:
+      - 18806:3306
+    volumes:
+      - /home/fxly/data-docker/mysql/my.cnf:/etc/my.cnf.d/my.cnf
+      - /home/fxly/data-docker/mysql/logs:/logs
+      - /home/fxly/data-docker/mysql/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Fxly9088
+    restart: always
+    hostname: pig-mysql
+    networks:
+      - pig
+
+  pig-redis:
+    image: redis:5.0
+    expose:
+      - 6379
+    restart: always
+    hostname: pig-redis
+    networks:
+      - pig
+
+  pig-consul:
+    image: consul
+    command: agent -server -bootstrap-expect=1 -node=fx -datacenter=fuzhou -client 0.0.0.0 -ui
+    restart: always
+    ports:
+      - 8500:8500
+    volumes:
+      - /home/fxly/data-docker/consul/data:/consul/data
+      - /home/fxly/bin-docker/consul/config:/consul/config
+    environment:
+      CONSUL_BIND_INTERFACE: eth0
+    hostname: pig-consul
+    networks:
+      - pig
+
+  pig-gateway:
+    build: ./pig-gateway
+    image: pig-gateway
+    restart: always
+    depends_on:
+      - pig-consul
+      - pig-redis
+    ports:
+      - 9999:9999
+    hostname: pig-gateway
+    networks:
+      - pig
+
+  pig-auth:
+    build: ./pig-auth
+    image: pig-auth
+    restart: always
+    depends_on:
+      - pig-consul
+      - pig-redis
+    hostname: pig-auth
+    networks:
+      - pig
+
+  pig-upms:
+    build: ./pig-upms/pig-upms-biz
+    image: pig-upms
+    restart: always
+    depends_on:
+      - pig-consul
+      - pig-redis
+    hostname: pig-upms
+    networks:
+      - pig
+
+#  pig-codegen:
+#    build: ./pig-visual/pig-codegen
+#    image: pig-codegen
+#    restart: always
+#    depends_on:
+#      - pig-consul
+#      - pig-redis
+#    hostname: pig-codegen
+#    networks:
+#      - pig
+
+#  pig-monitor:
+#    build: ./pig-visual/pig-monitor
+#    image: pig-monitor
+#    restart: always
+#    depends_on:
+#      - pig-consul
+#    ports:
+#      - 5001:5001
+#    hostname: pig-monitor
+#    networks:
+#      - pig
+
+#  pig-zipkin:
+#    build: ./pig-visual/pig-zipkin
+#    image: pig-zipkin
+#    restart: always
+#    depends_on:
+#      - pig-consul
+#    hostname: pig-codegen
+#    ports:
+#      - 5002:5002
+#    networks:
+#      - pig

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright message,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  message, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.message.mapper.MessageMapper">
+
+	<resultMap id="messageMap" type="com.pig4cloud.pig.settings.message.entity.Message">
+		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+		<result property="title" column="title"/>
+		<result property="readStatus" column="read_status"/>
+		<result property="content" column="content"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+
+	<!--message简单分页查询-->
+	<select id="getMessagePage" resultMap="messageMap">
+		SELECT
+		id,
+		user_id,
+		title,
+		content,
+		read_status,
+		creator_id,
+		create_date
+		FROM fx_message
+		<where>
+			AND read_status = 0
+			<if test="message.userId != null">
+				AND user_id = #{message.userId}
+			</if>
+			<if test="message.title != null and message.title.trim() != ''">
+				AND title like concat('%',#{message.title},'%')
+			</if>
+		</where>
+		order by create_date desc
+	</select>
+
+</mapper>

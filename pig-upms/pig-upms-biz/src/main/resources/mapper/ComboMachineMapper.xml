@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.comboMachine.mapper.ComboMachineMapper">
+
+	<resultMap id="comboMachineMap" type="com.pig4cloud.pig.settings.comboMachine.entity.ComboMachine">
+		<id property="id" column="id"/>
+		<result property="comboId" column="combo_id"/>
+		<result property="num" column="num"/>
+		<result property="machineSpecId" column="machine_spec_id"/>
+		<result property="machineSpecName" column="machine_spec_name"/>
+		<result property="machineTradePrice" column="machine_trade_price"/>
+	</resultMap>
+	<select id="getComboMachineByComboId" resultMap="comboMachineMap">
+		SELECT
+		cm.id,
+		cm.combo_id,
+		cm.num,
+		cm.machine_spec_id,
+		spec.spec as machine_spec_name,
+		spec.trade_price as machine_trade_price
+		FROM
+		fx_combo_machine cm
+		LEFT JOIN fx_sales_machine_spec spec ON cm.machine_spec_id = spec.id
+		WHERE
+		cm.combo_id = #{comboId}
+	</select>
+
+	<delete id="removeByComboId">
+		delete from fx_combo_machine where combo_id=#{comboId}
+	</delete>
+
+</mapper>

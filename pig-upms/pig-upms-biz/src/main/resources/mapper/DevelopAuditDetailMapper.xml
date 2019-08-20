@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.accountmanage.developAuditDetail.mapper.DevelopAuditDetailMapper">
+
+	<resultMap id="developAuditDetailMap"
+			   type="com.pig4cloud.pig.accountmanage.developAuditDetail.entity.DevelopAuditDetail">
+		<id property="id" column="id"/>
+		<result property="agentId" column="agent_id"/>
+		<result property="agentName" column="agent_name"/>
+		<result property="activeTime" column="active_time"/>
+		<result property="awardMoney" column="award_money"/>
+		<result property="developId" column="develop_id"/>
+	</resultMap>
+
+	<!--developAuditDetail简单分页查询-->
+	<select id="getDevelopAuditDetailPage" resultMap="developAuditDetailMap">
+		SELECT
+		d.id,
+		d.agent_id,
+		a.`name` AS agent_name,
+		a.active_time,
+		d.develop_id,
+		d.award_money
+		FROM
+		fx_develop_audit_detail d
+		LEFT JOIN fx_agent a ON d.agent_id = a.agent_id
+		<where>
+			<if test="developAuditDetail.id != null ">
+				AND d.id = #{developAuditDetail.id}
+			</if>
+			<if test="developAuditDetail.agentId != null ">
+				AND d.agent_id = #{developAuditDetail.agentId}
+			</if>
+			<if test="developAuditDetail.developId != null ">
+				AND d.develop_id = #{developAuditDetail.developId}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

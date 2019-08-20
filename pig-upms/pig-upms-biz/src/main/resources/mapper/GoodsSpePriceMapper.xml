@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.goodsSpePrice.mapper.GoodsSpePriceMapper">
+
+	<resultMap id="goodsSpePriceMap" type="com.pig4cloud.pig.goods.goodsSpePrice.entity.GoodsSpePrice">
+		<id property="id" column="id"/>
+		<result property="goodsId" column="goods_id"/>
+		<result property="spePriceKey" column="spe_price_key"/>
+		<result property="speName1" column="spe_name1"/>
+		<result property="speName2" column="spe_name2"/>
+		<result property="speName3" column="spe_name3"/>
+		<result property="speName4" column="spe_name4"/>
+		<result property="speId1" column="spe_id1"/>
+		<result property="speId2" column="spe_id2"/>
+		<result property="speId3" column="spe_id3"/>
+		<result property="speId4" column="spe_id4"/>
+		<result property="salePrice" column="sale_price"/>
+		<result property="tradePrice" column="trade_price"/>
+		<result property="inventoryNum" column="inventory_num"/>
+		<result property="salesVolume" column="sales_volume"/>
+		<result property="weight" column="weight"/>
+	</resultMap>
+	<sql id="goodsSpePriceSql">
+		id,
+		goods_id,
+		spe_price_key,
+		spe_name1,
+		spe_name2,
+		spe_name3,
+		spe_name4,
+		spe_id1,
+		spe_id2,
+		spe_id3,
+		spe_id4,
+		sale_price,
+		trade_price,
+		inventory_num,
+		sales_volume,
+		weight
+	</sql>
+	<!--goodsSpePrice简单分页查询-->
+	<select id="getGoodsSpePricePage" resultMap="goodsSpePriceMap">
+		SELECT
+		<include refid="goodsSpePriceSql"/>
+		FROM fx_goods_spe_price
+		<where>
+			<if test="goodsSpePrice.id != null">
+				AND id = #{goodsSpePrice.id}
+			</if>
+			<if test="goodsSpePrice.goodsId != null">
+				AND goods_id = #{goodsSpePrice.goodsId}
+			</if>
+			<if test="goodsSpePrice.speName1 != null and goodsSpePrice.speName1.trim() != ''">
+				AND spe_name1 = #{goodsSpePrice.speName1}
+			</if>
+			<if test="goodsSpePrice.speName2 != null and goodsSpePrice.speName2.trim() != ''">
+				AND spe_name2 = #{goodsSpePrice.speName2}
+			</if>
+			<if test="goodsSpePrice.speName3 != null and goodsSpePrice.speName3.trim() != ''">
+				AND spe_name3 = #{goodsSpePrice.speName3}
+			</if>
+			<if test="goodsSpePrice.speName4 != null and goodsSpePrice.speName4.trim() != ''">
+				AND spe_name4 = #{goodsSpePrice.speName4}
+			</if>
+			<if test="goodsSpePrice.speId1 != null and goodsSpePrice.speId1.trim() != ''">
+				AND spe_id1 = #{goodsSpePrice.speId1}
+			</if>
+			<if test="goodsSpePrice.speId2 != null and goodsSpePrice.speId2.trim() != ''">
+				AND spe_id2 = #{goodsSpePrice.speId2}
+			</if>
+			<if test="goodsSpePrice.speId3 != null and goodsSpePrice.speId3.trim() != ''">
+				AND spe_id3 = #{goodsSpePrice.speId3}
+			</if>
+			<if test="goodsSpePrice.speId4 != null and goodsSpePrice.speId4.trim() != ''">
+				AND spe_id4 = #{goodsSpePrice.speId4}
+			</if>
+			<if test="goodsSpePrice.inventoryNum != null and goodsSpePrice.inventoryNum.trim() != ''">
+				AND inventory_num = #{goodsSpePrice.inventoryNum}
+			</if>
+			<if test="goodsSpePrice.salesVolume != null and goodsSpePrice.salesVolume.trim() != ''">
+				AND sales_volume = #{goodsSpePrice.salesVolume}
+			</if>
+		</where>
+	</select>
+
+	<select id="listSpePriceByGoodsId" resultMap="goodsSpePriceMap">
+		SELECT
+		<include refid="goodsSpePriceSql"/>
+		FROM fx_goods_spe_price where goods_id = #{goodsId}
+	</select>
+
+	<delete id="removeByGoodsId">
+		DELETE FROM fx_goods_spe_price WHERE goods_id = #{goodsId}
+	</delete>
+</mapper>

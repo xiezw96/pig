@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.salesMachineAisleGoods.mapper.SalesMachineAisleGoodsMapper">
+
+	<resultMap id="salesMachineAisleGoodsMap"
+			   type="com.pig4cloud.pig.goods.salesMachineAisleGoods.entity.SalesMachineAisleGoods">
+		<id property="id" column="id"/>
+		<result property="goodsId" column="goods_id"/>
+		<result property="spePriceId" column="spe_price_id"/>
+		<result property="spePriceKey" column="spe_price_key"/>
+		<result property="machineId" column="machine_id"/>
+		<result property="aisleId" column="aisle_id"/>
+		<result property="num" column="num"/>
+	</resultMap>
+
+	<select id="getSalesMachineAisleGoodsPage" resultMap="salesMachineAisleGoodsMap">
+		SELECT
+		id,
+		goods_id,
+		spe_price_id,
+		spe_price_key,
+		machine_id,
+		aisle_id,
+		num
+		FROM fx_sales_machine_aisle_goods
+		<where>
+			<if test="salesMachineAisleGoods.id != null and salesMachineAisleGoods.id.trim() != ''">
+				AND id = #{salesMachineAisleGoods.id}
+			</if>
+			<if test="salesMachineAisleGoods.goodsId != null and salesMachineAisleGoods.goodsId.trim() != ''">
+				AND goods_id = #{salesMachineAisleGoods.goodsId}
+			</if>
+			<if test="salesMachineAisleGoods.spePriceId != null and salesMachineAisleGoods.spePriceId.trim() != ''">
+				AND spe_price_id = #{salesMachineAisleGoods.spePriceId}
+			</if>
+			<if test="salesMachineAisleGoods.machineId != null and salesMachineAisleGoods.machineId.trim() != ''">
+				AND machine_id = #{salesMachineAisleGoods.machineId}
+			</if>
+			<if test="salesMachineAisleGoods.aisleId != null and salesMachineAisleGoods.aisleId.trim() != ''">
+				AND aisle_id = #{salesMachineAisleGoods.aisleId}
+			</if>
+			<if test="salesMachineAisleGoods.num != null and salesMachineAisleGoods.num.trim() != ''">
+				AND num = #{salesMachineAisleGoods.num}
+			</if>
+		</where>
+	</select>
+
+	<select id="getSalesMachineAisleGoodsDetailByAisleId"
+			resultType="com.pig4cloud.pig.goods.salesMachineAisleGoods.entity.SalesMachineAisleGoodsDetail">
+		SELECT
+		ag.id,
+		ag.goods_id,
+		g.`name` as 'goods_name',
+	    g.`code` as 'goods_code',
+		ag.spe_price_id,
+		ag.spe_price_key,
+		ag.machine_id,
+		ag.aisle_id,
+		ag.num,
+		sp.spe_id1 AS goods_spe1,
+		sp.spe_id2 AS goods_spe2,
+		sp.sale_price,
+		sp.trade_price
+		FROM
+		fx_sales_machine_aisle_goods ag,
+		fx_goods g,
+		fx_goods_spe_price sp
+		WHERE
+		ag.goods_id = g.id
+		AND sp.spe_price_key = ag.spe_price_key
+		AND ag.aisle_id = #{aisleId}
+	</select>
+
+	<select id="getSalesMachineAisleGoodsDetailPage"
+			resultType="com.pig4cloud.pig.goods.salesMachineAisleGoods.entity.SalesMachineAisleGoodsDetail">
+		SELECT
+		ag.id,
+		ag.goods_id,
+		a.`code` as aisle_code,
+		g.`name` as goods_name,
+		g.`code` as goods_code,
+		g.att_id as goods_att_id,
+		ag.spe_price_id,
+		ag.spe_price_key,
+		ag.machine_id,
+		m.name as machine_name,
+		m.code as machine_code,
+		m.curr_addreaa as machine_curr_addreaa,
+		ag.aisle_id,
+		ag.num,
+		sp.spe_id1 AS goods_spe1,
+		sp.spe_id2 AS goods_spe2,
+		sp.sale_price,
+		sp.trade_price
+		FROM
+		fx_sales_machine_aisle_goods ag,
+		fx_sales_machine_aisle a,
+		fx_goods g,
+		fx_sales_machine m,
+		fx_goods_spe_price sp
+		<where>
+			m.id = ag.machine_id
+			AND ag.aisle_id = a.id
+			AND ag.goods_id = g.id
+			AND sp.spe_price_key = ag.spe_price_key
+			<if test="salesMachineAisleGoodsDetail.belongsUser != null">
+				AND m.belongs_user = #{salesMachineAisleGoodsDetail.belongsUser}
+			</if>
+			<if test="salesMachineAisleGoodsDetail.aisleCode != null and salesMachineAisleGoodsDetail.aisleCode.trim() != ''">
+				AND a.`code` = #{salesMachineAisleGoodsDetail.aisleCode}
+			</if>
+			<if test="salesMachineAisleGoodsDetail.goodsName != null and salesMachineAisleGoodsDetail.goodsName.trim() != ''">
+				AND (g.name like concat('%', #{salesMachineAisleGoodsDetail.goodsName},'%') or g.code like concat('%',
+				#{salesMachineAisleGoodsDetail.goodsName},'%'))
+			</if>
+			<if test="salesMachineAisleGoodsDetail.machineName != null and salesMachineAisleGoodsDetail.machineName.trim() != ''">
+				AND (m.name like concat('%', #{salesMachineAisleGoodsDetail.machineName},'%') or m.code like concat('%',
+				#{salesMachineAisleGoodsDetail.machineName},'%'))
+			</if>
+		</where>
+
+	</select>
+
+	<resultMap id="salesMachineAisleGoodsMapList"
+			   type="com.pig4cloud.pig.goods.salesMachineAisleGoods.entity.SalesMachineAisleGoods">
+		<id property="id" column="id"/>
+		<result property="goodsId" column="goods_id"/>
+		<result property="spePriceId" column="spe_price_id"/>
+		<result property="spePriceKey" column="spe_price_key"/>
+		<result property="machineId" column="machine_id"/>
+		<result property="aisleId" column="aisle_id"/>
+		<result property="num" column="num"/>
+		<result property="aisleCode" column="aisle_code"/>
+	</resultMap>
+
+	<select id="getSalesMachineAisleGoodsByMachineId" resultMap="salesMachineAisleGoodsMapList">
+		SELECT
+		ag.id,
+		ag.goods_id,
+		ag.spe_price_id,
+		ag.spe_price_key,
+		ag.machine_id,
+		ag.aisle_id,
+		ag.num,
+		a.code as 'aisle_code'
+		FROM
+		fx_sales_machine_aisle_goods ag,
+		fx_sales_machine_aisle a
+		<where>
+			ag.aisle_id = a.id
+			<if test="machineId != null">
+				AND ag.machine_id = #{machineId}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.comboDetail.mapper.ComboDetailMapper">
+
+	<resultMap id="comboDetailMap" type="com.pig4cloud.pig.settings.comboDetail.entity.ComboDetail">
+		<id property="id" column="id"/>
+		<result property="comboId" column="combo_id"/>
+		<result property="goodsId" column="goods_id"/>
+		<result property="spePriceId" column="spe_price_id"/>
+		<result property="spePriceKey" column="spe_price_key"/>
+		<result property="goodNum" column="good_num"/>
+		<result property="goodsName" column="goods_name"/>
+		<result property="goodsAttId" column="goods_att_id"/>
+		<result property="sepcValue1" column="sepc_value1"/>
+		<result property="sepcValue2" column="sepc_value2"/>
+		<result property="salePrice" column="sale_price"/>
+		<result property="tradePrice" column="trade_price"/>
+		<result property="totalPrice" column="total_price"/>
+	</resultMap>
+	<select id="getComboDetailByComboId" resultMap="comboDetailMap">
+		SELECT
+		detail.id,
+		detail.combo_id,
+		detail.goods_id,
+		detail.spe_price_id,
+		detail.spe_price_key,
+		detail.good_num,
+		goods.`name` as goods_name,
+		goods.att_id as goods_att_id,
+		spe.spe_id1 as sepc_value1,
+		spe.spe_id2 as sepc_value2,
+		spe.sale_price,
+		spe.trade_price,
+		ROUND(spe.trade_price*detail.good_num,2) as total_price
+		FROM
+		fx_combo_detail detail
+		LEFT JOIN fx_goods goods ON detail.goods_id = goods.id
+		LEFT JOIN fx_goods_spe_price spe on spe.spe_price_key = detail.spe_price_key
+		WHERE
+		detail.combo_id = #{comboId}
+	</select>
+
+	<delete id="removeByComboId">
+		delete from fx_combo_detail where combo_id=#{comboId}
+	</delete>
+
+</mapper>

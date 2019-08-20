@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.order.orderDetail.mapper.OrderDetailMapper">
+
+	<resultMap id="orderDetailMap" type="com.pig4cloud.pig.order.orderDetail.entity.OrderDetail">
+		<id property="id" column="id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="goodsId" column="goods_id"/>
+		<result property="spePriceId" column="spe_price_id"/>
+		<result property="spePriceKey" column="spe_price_key"/>
+		<result property="voucherId" column="voucher_id"/>
+		<result property="payNum" column="pay_num"/>
+		<result property="payPrice" column="pay_price"/>
+		<result property="goodsName" column="goods_name"/>
+		<result property="goodsAttId" column="goods_att_id"/>
+		<result property="goodsSpe1" column="goods_spe1"/>
+		<result property="goodsSpe2" column="goods_spe2"/>
+		<result property="salePrice" column="sale_price"/>
+		<result property="tradePrice" column="trade_price"/>
+	</resultMap>
+
+	<!--orderDetail简单分页查询-->
+	<select id="getOrderDetailPage" resultMap="orderDetailMap">
+		SELECT
+		id,
+		order_id,
+		goods_id,
+		spe_price_id,
+		spe_price_key,
+		goods_name,
+		goods_att_id,
+		goods_spe1,
+		goods_spe2,
+		sale_price,
+		trade_price,
+		voucher_id,
+		pay_num,
+		pay_price
+		FROM fx_order_detail
+		<where>
+			<if test="orderDetail.id != null">
+				AND id = #{orderDetail.id}
+			</if>
+			<if test="orderDetail.orderId != null">
+				AND order_id = #{orderDetail.orderId}
+			</if>
+			<if test="orderDetail.goodsId != null">
+				AND good_id = #{orderDetail.goodsId}
+			</if>
+			<if test="orderDetail.goodSpePriceId != null">
+				AND good_spe_price_id = #{orderDetail.goodSpePriceId}
+			</if>
+			<if test="orderDetail.unitPrice != null">
+				AND unit_price = #{orderDetail.unitPrice}
+			</if>
+			<if test="orderDetail.voucherId != null">
+				AND voucher_id = #{orderDetail.voucherId}
+			</if>
+			<if test="orderDetail.payNum != null">
+				AND pay_num = #{orderDetail.payNum}
+			</if>
+			<if test="orderDetail.payPrice != null">
+				AND pay_price = #{orderDetail.payPrice}
+			</if>
+		</where>
+	</select>
+	<select id="getOrderDetailsByOrderId" resultType="com.pig4cloud.pig.order.orderDetail.entity.OrderDetail">
+		SELECT
+		id,
+		order_id,
+		goods_id,
+		spe_price_id,
+		spe_price_key,
+		goods_name,
+		goods_att_id,
+		goods_spe1,
+		goods_spe2,
+		sale_price,
+		trade_price,
+		voucher_id,
+		pay_num,
+		pay_price
+		FROM fx_order_detail where order_id = #{orderId}
+	</select>
+
+
+	<select id="getUserOrderDetailPage"
+			resultType="com.pig4cloud.pig.order.orderDetail.entity.UserOrderDetail">
+		SELECT
+		od.*,
+		g.`code` AS goods_code,
+		m.belongs_user AS source_agent_id,
+		m.`code` AS machine_code,
+		m.curr_addreaa AS machine_curr_address,
+		u.phone AS user_account,
+		a.`name` AS source_agent_name,
+		o.`code` AS order_code,
+		o.create_time AS order_create_time,
+		o.total_money
+		FROM
+		fx_order o
+		LEFT JOIN fx_sales_machine m ON m.id = o.machine_id
+		LEFT JOIN fx_agent a ON a.agent_id = m.belongs_user,
+		fx_order_detail od,
+		fx_user u,
+		fx_goods g
+		WHERE
+		o.id = od.order_id
+		AND u.id = o.creator_id
+		AND g.id = od.goods_id
+		AND o.type = 1
+		<if test="userOrderDetail.userAgentId != null and userOrderDetail.machineAgentIds != null">
+			AND ((o.machine_id is null and u.of_proxy = #{userOrderDetail.userAgentId}) or a.agent_id in
+			<foreach collection="userOrderDetail.machineAgentIds" item="machineAgentId" open="(" close=")"
+					 separator=",">
+				#{machineAgentId}
+			</foreach>
+			)
+		</if>
+		<if test="userOrderDetail.orderCreateStartTime != null and userOrderDetail.orderCreateStartTime.trim() != ''">
+			AND o.create_time &gt;= #{userOrderDetail.orderCreateStartTime}
+		</if>
+		<if test="userOrderDetail.orderCreateEndTime != null and userOrderDetail.orderCreateEndTime.trim() != ''">
+			AND o.create_time &lt;= #{userOrderDetail.orderCreateEndTime}
+		</if>
+		<if test="userOrderDetail.source == 1">
+			AND o.machine_id is null
+		</if>
+		<if test="userOrderDetail.source == 0">
+			AND o.machine_id is not null and a.agent_id = #{userOrderDetail.userAgentId}
+		</if>
+		<if test="userOrderDetail.source == 2">
+			AND m.belongs_user != #{userOrderDetail.userAgentId}
+		</if>
+		<if test="userOrderDetail.sourceAgentId != null and userOrderDetail.source != 2">
+			AND m.belongs_user = #{userOrderDetail.sourceAgentId}
+		</if>
+		<if test="userOrderDetail.machineCode != null and userOrderDetail.machineCode.trim() != ''">
+			AND (m.`code` like concat('%',#{userOrderDetail.machineCode},'%') or m.`name` like
+			concat('%',#{userOrderDetail.machineCode},'%'))
+		</if>
+		<if test="userOrderDetail.goodsCode != null and userOrderDetail.goodsCode.trim() != ''">
+			AND (od.goods_name like concat('%',#{userOrderDetail.goodsCode},'%') OR g.code like
+			concat('%',#{userOrderDetail.goodsCode},'%'))
+		</if>
+		<if test="userOrderDetail.userAccount != null and userOrderDetail.userAccount.trim() != ''">
+			AND u.phone like concat('%',#{userOrderDetail.userAccount},'%')
+		</if>
+		<if test="userOrderDetail.orderCode != null and userOrderDetail.orderCode.trim() != ''">
+			AND o.`code` like concat('%',#{userOrderDetail.orderCode},'%')
+		</if>
+		<if test="userOrderDetail.sourceAgentName != null and userOrderDetail.sourceAgentName.trim != ''">
+			AND (a.`name` like concat('%',#{userOrderDetail.sourceAgentName},'%') or a.phone like
+			concat('%',#{userOrderDetail.sourceAgentName},'%'))
+		</if>
+	</select>
+
+	<select id="getOrderInfoById" resultType="com.pig4cloud.pig.order.orderDetail.dto.AgentOrderDetailDTO">
+		SELECT
+		o.creator_id AS agentId,
+		ag.`name` AS agentName,
+		ad.`name`,
+		ad.phone,
+		ad.privince,
+		ad.city,
+		ad.area,
+		ad.address
+		FROM
+		fx_order o
+		LEFT JOIN fx_shopping_address ad ON ad.id = o.shopping_address
+		LEFT JOIN fx_agent ag ON ag.agent_id = o.creator_id
+		WHERE
+		o.type = 0
+		AND o.id = #{orderId}
+	</select>
+
+</mapper>

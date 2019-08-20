@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.comboSuitableObject.mapper.ComboSuitableObjectMapper">
+
+	<resultMap id="comboSuitableObjectMap" type="com.pig4cloud.pig.settings.comboSuitableObject.entity.ComboSuitableObject">
+		<id property="id" column="id"/>
+        <result property="comboId" column="combo_id"/>
+        <result property="objectType" column="object_type"/>
+        <result property="objectName" column="object_name"/>
+	</resultMap>
+	<sql id="getComboSuitableObjectSql">
+		id,
+        combo_id,
+        object_type,
+        object_name
+	</sql>
+  <!--comboSuitableObject简单分页查询-->
+  <select id="getComboSuitableObjectPage" resultMap="comboSuitableObjectMap">
+    SELECT
+        <include refid="getComboSuitableObjectSql"/>
+	FROM fx_combo_suitable_object
+    <where>
+              <if test="comboSuitableObject.id != null and comboSuitableObject.id.trim() != ''">
+          AND id = #{comboSuitableObject.id}
+        </if>
+              <if test="comboSuitableObject.comboId != null and comboSuitableObject.comboId.trim() != ''">
+          AND combo_id = #{comboSuitableObject.comboId}
+        </if>
+              <if test="comboSuitableObject.objectType != null and comboSuitableObject.objectType.trim() != ''">
+          AND object_type = #{comboSuitableObject.objectType}
+        </if>
+              <if test="comboSuitableObject.objectName != null and comboSuitableObject.objectName.trim() != ''">
+          AND object_name = #{comboSuitableObject.objectName}
+        </if>
+	</where>
+  </select>
+	<select id="getComboSuitableObjectByComboId" resultMap="comboSuitableObjectMap">
+		SELECT
+	        <include refid="getComboSuitableObjectSql"/>
+		FROM fx_combo_suitable_object where combo_id = #{comboId}
+	</select>
+
+	<delete id="removeByComboId">
+		delete from fx_combo_suitable_object where combo_id=#{comboId}
+	</delete>
+</mapper>

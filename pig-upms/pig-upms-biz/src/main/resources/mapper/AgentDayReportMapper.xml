@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.accountmanage.agentDayReport.mapper.AgentDayReportMapper">
+
+	<resultMap id="agentDayReportMap" type="com.pig4cloud.pig.accountmanage.agentDayReport.entity.AgentDayReport">
+		<id property="id" column="id"/>
+		<result property="agentId" column="agent_id"/>
+		<result property="agentName" column="agent_name"/>
+		<result property="newUserCount" column="new_user_count"/>
+		<result property="total" column="total"/>
+		<result property="onlineTotal" column="online_total"/>
+		<result property="offlineTotal" column="offline_total"/>
+		<result property="developCount" column="develop_count"/>
+		<result property="withdrawalApplyTotal" column="withdrawal_apply_total"/>
+		<result property="withdrawalPrice" column="withdrawal_price"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+
+	<!--agent简单分页查询-->
+	<select id="getAgentDayReportPage" resultMap="agentDayReportMap">
+		SELECT
+		dr.id,
+		dr.agent_id,
+		ag.`name` AS agent_name,
+		dr.new_user_count,
+		dr.total,
+		dr.online_total,
+		dr.offline_total,
+		dr.develop_count,
+		dr.withdrawal_apply_total,
+		dr.withdrawal_price,
+		dr.create_date
+		FROM
+		fx_agent_day_report dr
+		LEFT JOIN fx_agent ag ON ag.agent_id = dr.agent_id
+		<where>
+			<if test="agentDayReport.agentId != null">
+				AND dr.agent_id = #{agentDayReport.agentId}
+			</if>
+			<if test="agentDayReport.agentName != null and agentDayReport.agentName.trim() != ''">
+				AND ( ag.`name` like concat('%',#{agentDayReport.agentName},'%') or ag.phone like
+				concat('%',#{agentDayReport.agentName},'%'))
+			</if>
+			<if test="agentDayReport.createStartDate != null and agentDayReport.createStartDate.trim() != ''">
+				AND dr.create_date &gt;= #{agentDayReport.createStartDate}
+			</if>
+			<if test="agentDayReport.createEndDate != null and agentDayReport.createEndDate.trim() != ''">
+				AND dr.create_date &lt;= #{agentDayReport.createEndDate}
+			</if>
+		</where>
+	</select>
+
+
+	<select id="getAgentTodayReport" useCache="false"
+			resultType="com.pig4cloud.pig.accountmanage.agentDayReport.entity.AgentDayReport">
+		SELECT
+		ag.agent_id,
+		ROUND(
+		(
+		SELECT
+		sum( od.total_money )
+		FROM
+		fx_order od,
+		fx_user fu
+		WHERE
+		od.creator_id = fu.id
+		AND od.type = 1
+		AND od.machine_id IS NOT NULL
+		AND fu.of_proxy = ag.agent_id
+		AND date_format( od.create_time, '%Y-%m-%d' ) = '${date}'
+		),
+		2
+		) AS offline_total,
+		ROUND(
+		(
+		SELECT
+		sum( od.total_money )
+		FROM
+		fx_order od,
+		fx_user fu,
+		fx_agent ag1
+		WHERE
+		od.creator_id = fu.id
+		AND od.type = 1
+		AND od.machine_id IS NULL
+		AND fu.of_proxy = ag.agent_id
+		AND date_format( od.create_time, '%Y-%m-%d' ) = '${date}'
+		),
+		2
+		) AS online_total,
+		ROUND(
+		(
+		SELECT
+		sum( od.total_money )
+		FROM
+		fx_order od,
+		fx_user fu
+		WHERE
+		od.creator_id = fu.id
+		AND od.type = 1
+		AND fu.of_proxy = ag.agent_id
+		AND date_format( od.create_time, '%Y-%m-%d' ) = '${date}'
+		),
+		2
+		) AS total,
+		(
+		SELECT
+		count( 1 )
+		FROM
+		fx_user fu
+		WHERE
+		fu.of_proxy = ag.agent_id
+		AND date_format( fu.register_date, '%Y-%m-%d' ) = '${date}'
+		) AS new_user_count,
+		(
+		SELECT
+		count( 1 )
+		FROM
+		fx_agent ag1,
+		sys_user su
+		WHERE
+		su.user_id = ag1.agent_id
+		AND ag1.referrer_id = ag.agent_id
+		AND date_format( su.create_time, '%Y-%m-%d' ) = '${date}'
+		) AS develop_count,
+		round(
+		(
+		SELECT
+		sum( wa.total )
+		FROM
+		fx_withdrawal_apply wa
+		WHERE
+		wa.user_id = ag.agent_id
+		AND wa.audit_status = 1
+		AND date_format( wa.audit_time, '%Y-%m-%d' ) = '${date}'
+		),
+		2
+		) AS withdrawal_apply_total,
+		ag.withdrawal_price
+		FROM
+		fx_agent ag
+	</select>
+	<select id="getSumDayRport" resultType="com.pig4cloud.pig.accountmanage.agentDayReport.entity.AgentDayReport">
+		SELECT
+		sum( dr.new_user_count ) AS new_user_count,
+		sum( dr.total ) AS total,
+		sum( dr.online_total ) AS online_total,
+		sum( dr.offline_total ) AS offline_total,
+		sum( dr.develop_count ) AS develop_count
+		FROM
+		fx_agent_day_report dr
+		<where>
+			<if test="agentDayReport.agentId != null">
+				AND dr.agent_id = #{agentDayReport.agentId}
+			</if>
+			<if test="agentDayReport.agentName != null and agentDayReport.agentName.trim() != ''">
+				AND ( ag.`name` like concat('%',#{agentDayReport.agentName},'%') or ag.phone like
+				concat('%',#{agentDayReport.agentName},'%'))
+			</if>
+			<if test="agentDayReport.createStartDate != null and agentDayReport.createStartDate.trim() != ''">
+				AND dr.create_date &gt;= #{agentDayReport.createStartDate}
+			</if>
+			<if test="agentDayReport.createEndDate != null and agentDayReport.createEndDate.trim() != ''">
+				AND dr.create_date &lt;= #{agentDayReport.createEndDate}
+			</if>
+		</where>
+	</select>
+
+</mapper>

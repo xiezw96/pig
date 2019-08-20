@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.salesMachineFault.mapper.SalesMachineFaultMapper">
+
+	<resultMap id="salesMachineAisleMap" type="com.pig4cloud.pig.goods.salesMachineFault.entity.SalesMachineFault">
+		<id property="id" column="id"/>
+		<result property="machineId" column="machine_id"/>
+		<result property="machineCode" column="machine_code"/>
+		<result property="currAddreaa" column="curr_addreaa"/>
+		<result property="faultType" column="fault_type"/>
+		<result property="aisleId" column="aisle_id"/>
+		<result property="remark" column="remark"/>
+		<result property="agentId" column="agent_id"/>
+		<result property="agentName" column="agent_name"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createTime" column="create_time"/>
+		<result property="operateTime" column="operator_id"/>
+		<result property="operatorId" column="operate_time"/>
+		<result property="status" column="status"/>
+		<result property="dealRemark" column="deal_remark"/>
+		<result property="pics" column="pics"/>
+	</resultMap>
+
+	<select id="getSalesMachineFaultPage" resultMap="salesMachineAisleMap">
+		SELECT
+		f.id,
+		f.machine_id,
+		m.`code` as machine_code,
+		m.curr_addreaa as curr_addreaa,
+		f.fault_type,
+		f.aisle_id,
+		f.remark,
+		f.agent_id,
+		a.`name` as agent_name,
+		f.creator_id,
+		f.create_time,
+		f.operator_id,
+		f.operate_time,
+		f.`status`,
+		f.deal_remark,
+		f.pics
+		FROM fx_sales_machine_fault f, fx_sales_machine m, fx_agent a
+		<where>
+			AND f.machine_id = m.id
+			AND f.agent_id = a.agent_id
+			<if test="salesMachineFault.id != null and salesMachineFault.id.trim() != ''">
+				AND f.id = #{salesMachineFault.id}
+			</if>
+			<if test="salesMachineFault.machineId != null and salesMachineFault.machineId.trim() != ''">
+				AND f.machine_id = #{salesMachineFault.machineId}
+			</if>
+			<if test="salesMachineFault.faultType != null and salesMachineFault.faultType.trim() != ''">
+				AND f.fault_type = #{salesMachineFault.faultType}
+			</if>
+			<if test="salesMachineFault.status != null and salesMachineFault.status.trim() != ''">
+				AND f.status = #{salesMachineFault.status}
+			</if>
+			<if test="salesMachineFault.startCreateTime != null and salesMachineFault.startCreateTime.trim() != ''">
+				AND f.create_time &gt;= #{salesMachineFault.startCreateTime}
+			</if>
+			<if test="salesMachineFault.endCreateTime != null and salesMachineFault.endCreateTime.trim() != ''">
+				AND f.create_time &lt;= #{salesMachineFault.endCreateTime}
+			</if>
+			<if test="salesMachineFault.currAddreaa != null and salesMachineFault.currAddreaa.trim() != ''">
+				AND m.curr_addreaa like concat('%', #{salesMachineFault.currAddreaa},'%')
+			</if>
+			<if test="salesMachineFault.machineCode != null and salesMachineFault.machineCode.trim() != ''">
+				AND m.`code` like concat('%', #{salesMachineFault.machineCode},'%')
+			</if>
+			<if test="salesMachineFault.agentName != null and salesMachineFault.agentName.trim() != ''">
+				AND a.`name` like concat('%', #{salesMachineFault.agentName},'%')
+			</if>
+		</where>
+	</select>
+
+</mapper>

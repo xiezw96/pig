@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.pig4cloud.pig.common.security.service.PigUserDetailsServiceImpl, \
+  com.pig4cloud.pig.common.security.extension.filter.AuthenticationFilter, \
+  com.pig4cloud.pig.common.security.extension.DefaultAuthenticator, \
+  com.pig4cloud.pig.common.security.extension.WXAuthenticator \

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.performanceAssessment.mapper.PerformanceAssessmentMapper">
+
+  <resultMap id="performanceAssessmentMap" type="com.pig4cloud.pig.settings.performanceAssessment.entity.PerformanceAssessment">
+                  <id property="id" column="id"/>
+                        <result property="name" column="name"/>
+                        <result property="degradMoonJournalAccount" column="degrad_moon_journal_account"/>
+                        <result property="upgradeMoonJournalAccount" column="upgrade_moon_journal_account"/>
+                        <result property="creatorId" column="creator_id"/>
+                        <result property="createDate" column="create_date"/>
+            </resultMap>
+
+  <!--performanceAssessment简单分页查询-->
+  <select id="getPerformanceAssessmentPage" resultMap="performanceAssessmentMap">
+    SELECT
+                  id,
+                        name,
+                        degrad_moon_journal_account,
+                        upgrade_moon_journal_account,
+                        creator_id,
+                        create_date
+              FROM fx_performance_assessment
+    <where>
+              <if test="performanceAssessment.id != null and performanceAssessment.id.trim() != ''">
+          AND id = #{performanceAssessment.id}
+        </if>
+              <if test="performanceAssessment.name != null and performanceAssessment.name.trim() != ''">
+          AND name = #{performanceAssessment.name}
+        </if>
+              <if test="performanceAssessment.degradMoonJournalAccount != null and performanceAssessment.degradMoonJournalAccount.trim() != ''">
+          AND degrad_moon_journal_account = #{performanceAssessment.degradMoonJournalAccount}
+        </if>
+              <if test="performanceAssessment.upgradeMoonJournalAccount != null and performanceAssessment.upgradeMoonJournalAccount.trim() != ''">
+          AND upgrade_moon_journal_account = #{performanceAssessment.upgradeMoonJournalAccount}
+        </if>
+              <if test="performanceAssessment.creatorId != null and performanceAssessment.creatorId.trim() != ''">
+          AND creator_id = #{performanceAssessment.creatorId}
+        </if>
+              <if test="performanceAssessment.createDate != null and performanceAssessment.createDate.trim() != ''">
+          AND create_date = #{performanceAssessment.createDate}
+        </if>
+          </where>
+  </select>
+
+
+
+</mapper>

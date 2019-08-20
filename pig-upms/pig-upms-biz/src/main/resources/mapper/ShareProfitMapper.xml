@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.shareProfit.mapper.ShareProfitMapper">
+
+	<resultMap id="shareProfitMap" type="com.pig4cloud.pig.settings.shareProfit.entity.ShareProfit">
+		<id property="id" column="id"/>
+		<result property="goodsPrice" column="goods_price"/>
+		<result property="upAgentShareProfit" column="up_agent_share_profit"/>
+		<result property="agentShareProfit" column="agent_share_profit"/>
+		<result property="provinceShareProfit" column="province_share_profit"/>
+		<result property="cityShareProfit" column="city_share_profit"/>
+		<result property="areaShareProfit" column="area_share_profit"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createDate" column="create_date"/>
+		<result property="modifierId" column="modifier_id"/>
+		<result property="updateTime" column="update_time"/>
+	</resultMap>
+
+	<!--shareProfit简单分页查询-->
+	<select id="getShareProfitPage" resultMap="shareProfitMap">
+		SELECT
+		id,
+		goods_price,
+		up_agent_share_profit,
+		agent_share_profit,
+		province_share_profit,
+		city_share_profit,
+		area_share_profit,
+		creator_id,
+		create_date,
+		modifier_id,
+		update_time
+		FROM fx_share_profit
+		<where>
+			<if test="shareProfit.id != null and shareProfit.id.trim() != ''">
+				AND id = #{shareProfit.id}
+			</if>
+			<if test="shareProfit.goodsPrice != null and shareProfit.goodsPrice.trim() != ''">
+				AND goods_price = #{shareProfit.goodsPrice}
+			</if>
+
+			<if test="shareProfit.creatorId != null and shareProfit.creatorId.trim() != ''">
+				AND creator_id = #{shareProfit.creatorId}
+			</if>
+			<if test="shareProfit.createDate != null and shareProfit.createDate.trim() != ''">
+				AND create_date = #{shareProfit.createDate}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

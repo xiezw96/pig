@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.order.shoppingCart.mapper.ShoppingCartMapper">
+
+	<resultMap id="shoppingCartMap" type="com.pig4cloud.pig.order.shoppingCart.entity.ShoppingCart">
+		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+		<result property="goodsId" column="goods_id"/>
+		<result property="goodsName" column="goodsName"/>
+		<result property="goodsAttId" column="goods_att_id"/>
+		<result property="num" column="num"/>
+		<result property="goodsSpeId" column="good_spe_price_id"/>
+		<result property="goodsSpe1" column="goods_spe1"/>
+		<result property="goodsSpe2" column="goods_spe2"/>
+		<result property="spePriceKey" column="spe_price_key"/>
+		<result property="salePrice" column="sale_price"/>
+		<result property="tradePrice" column="trade_price"/>
+		<result property="creatorTime" column="creator_time"/>
+		<result property="isGenOrder" column="is_gen_order"/>
+		<result property="userType" column="user_type"/>
+	</resultMap>
+
+	<!--shoppingCart简单分页查询-->
+	<select id="getShoppingCartPage" resultMap="shoppingCartMap">
+		SELECT
+		c.id,
+		c.user_id,
+		c.goods_id,
+		c.goods_name,
+		c.goods_att_id,
+		c.num,
+		c.goods_spe_id,
+		c.goods_spe1,
+		c.goods_spe2,
+		c.spe_price_key,
+		creator_time,
+		is_gen_order,
+		sale_price,
+		trade_price,
+		user_type
+		FROM fx_shopping_cart c
+		<where>
+			<if test="shoppingCart.id != null">
+				AND c.id = #{shoppingCart.id}
+			</if>
+			<if test="shoppingCart.userId != null">
+				AND c.user_id = #{shoppingCart.userId}
+			</if>
+			<if test="shoppingCart.creatorTime != null">
+				AND c.creator_time = #{shoppingCart.creatorTime}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

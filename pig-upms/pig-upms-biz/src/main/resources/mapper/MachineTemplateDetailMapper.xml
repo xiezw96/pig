@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.machineTemplateDetail.mapper.MachineTemplateDetailMapper">
+
+	<resultMap id="machineTemplateDetailMap"
+			   type="com.pig4cloud.pig.settings.machineTemplateDetail.entity.MachineTemplateDetail">
+		<id property="id" column="id"/>
+		<result property="templateId" column="template_id"/>
+		<result property="aisleCode" column="aisle_code"/>
+		<result property="goodsId" column="goods_id"/>
+		<result property="specPriceKey" column="spec_price_key"/>
+		<result property="spePriceId" column="spe_price_id"/>
+		<result property="num" column="num"/>
+		<result property="goodsName" column="goods_name"/>
+		<result property="goodsCode" column="goods_code"/>
+		<result property="speValue1" column="spe_value1"/>
+		<result property="speValue2" column="spe_value2"/>
+	</resultMap>
+
+	<sql id="selectSql">
+		td.id,
+		td.template_id,
+		td.aisle_code,
+		td.goods_id,
+		td.spe_price_id,
+		td.spec_price_key,
+		num,
+		g.`code` as 'goods_code',
+		g.name as 'goods_name',
+		sp.spe_id1 as 'spe_value1',
+		sp.spe_id2 as 'spe_value2'
+	</sql>
+
+	<!--machineTemplateDetail简单分页查询-->
+	<select id="getMachineTemplateDetailPage" resultMap="machineTemplateDetailMap">
+		SELECT
+		<include refid="selectSql"/>
+		FROM fx_machine_template_detail td
+		left join fx_goods g on td.goods_code = g.code
+		left join fx_goods_spe_price sp on td.spec_price_key = sp.spe_price_key
+		<where>
+			<if test="machineTemplateDetail.templateId != null">
+				AND td.id = #{machineTemplateDetail.id}
+			</if>
+		</where>
+	</select>
+
+	<select id="getMachineTemplateDetailByTemplate" resultMap="machineTemplateDetailMap">
+		SELECT
+		<include refid="selectSql"/>
+		FROM fx_machine_template_detail td
+		left join fx_goods g on td.goods_id = g.id
+		left join fx_goods_spe_price sp on td.spec_price_key = sp.spe_price_key
+		<where>
+			<if test="templateId != null">
+				AND td.template_id = #{templateId}
+			</if>
+		</where>
+	</select>
+
+</mapper>

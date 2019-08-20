@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.voucher.mapper.VoucherMapper">
+
+	<resultMap id="voucherMap" type="com.pig4cloud.pig.settings.voucher.entity.Voucher">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="price" column="price"/>
+		<result property="minPrice" column="min_price"/>
+		<result property="startTime" column="start_time"/>
+		<result property="endTime" column="end_time"/>
+		<result property="useStatus" column="use_status"/>
+		<result property="isExpires" column="is_expires"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+
+	<!--voucher简单分页查询-->
+	<select id="getVoucherPage" resultMap="voucherMap">
+		SELECT
+		id,
+		name,
+		price,
+		min_price,
+		start_time,
+		end_time,
+		use_status,
+		case when (use_status = 0 or use_status is null ) and end_time &lt; now() then 1 else 0 end as is_expires,
+		creator_id,
+		create_date
+		FROM fx_voucher
+		<where>
+			<if test="voucher.id != null and voucher.id.trim() != ''">
+				AND id = #{voucher.id}
+			</if>
+			<if test="voucher.name != null and voucher.name.trim() != ''">
+				AND name = #{voucher.name}
+			</if>
+			<if test="voucher.price != null and voucher.price.trim() != ''">
+				AND price = #{voucher.price}
+			</if>
+			<if test="voucher.minPrice != null and voucher.minPrice.trim() != ''">
+				AND min_price = #{voucher.minPrice}
+			</if>
+			<if test="voucher.startTime != null">
+				AND start_time = #{voucher.startTime}
+			</if>
+			<if test="voucher.endTime != null">
+				AND end_time = #{voucher.endTime}
+			</if>
+			<if test="voucher.creatorId != null and voucher.creatorId.trim() != ''">
+				AND creator_id = #{voucher.creatorId}
+			</if>
+			<if test="voucher.createDate != null and voucher.createDate.trim() != ''">
+				AND create_date = #{voucher.createDate}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

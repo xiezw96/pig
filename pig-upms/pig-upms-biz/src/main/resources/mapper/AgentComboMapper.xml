@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.settings.agentCombo.mapper.AgentComboMapper">
+
+	<resultMap id="agentComboMap" type="com.pig4cloud.pig.settings.agentCombo.entity.AgentCombo">
+		<id property="id" column="id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="agentId" column="agent_id"/>
+		<result property="agentName" column="agent_name"/>
+		<result property="comboId" column="combo_id"/>
+		<result property="comboName" column="combo_name"/>
+		<result property="comboType" column="combo_type"/>
+		<result property="totalMoney" column="total_money"/>
+		<result property="createDate" column="create_date"/>
+		<result property="payStatus" column="pay_status"/>
+		<result property="payTime" column="pay_time"/>
+		<result property="tradeNo" column="trade_no"/>
+		<result property="addressId" column="address_id"/>
+		<result property="message" column="message"/>
+	</resultMap>
+	<select id="getAgentComboPage" resultType="com.pig4cloud.pig.settings.agentCombo.entity.AgentCombo">
+		SELECT
+		c.id,
+		c.order_id,
+		o.`code` AS order_code,
+		c.agent_id,
+		a.`name` AS agent_name,
+		c.combo_id,
+		cm.`name` AS combo_name,
+		c.combo_type,
+		c.total_money,
+		c.create_date,
+		c.pay_status,
+		c.pay_time,
+		c.trade_no,
+		c.address_id,
+		c.message
+		FROM
+		fx_agent_combo c
+		LEFT JOIN fx_combo_manage cm ON c.combo_id = cm.id
+		LEFT JOIN fx_order o ON o.id = c.order_id,
+		fx_agent a
+		<where>
+			c.agent_id = a.agent_id
+			<if test="agentCombo.id != null">
+				AND c.id = #{agentCombo.id}
+			</if>
+			<if test="agentCombo.orderId != null">
+				AND c.order_id = #{agentCombo.orderId}
+			</if>
+			<if test="agentCombo.agentId != null">
+				AND c.agent_id = #{agentCombo.agentId}
+			</if>
+			<if test="agentCombo.comboId != null">
+				AND c.combo_id = #{agentCombo.comboId}
+			</if>
+			<if test="agentCombo.comboName != null and agentCombo.comboName.trim() != ''">
+				AND cm.`name` like concat('%',#{agentCombo.comboName},'%')
+			</if>
+			<if test="agentCombo.agentName != null and agentCombo.agentName.trim() != ''">
+				AND a.`name` like concat('%',#{agentCombo.agentName},'%')
+			</if>
+			<if test="agentCombo.comboType != null">
+				AND c.combo_type = #{agentCombo.comboType}
+			</if>
+			<if test="agentCombo.startCreateDate != null and agentCombo.startCreateDate.trim() != ''">
+				AND c.create_date &gt;= #{agentCombo.startCreateDate}
+			</if>
+			<if test="agentCombo.endCreateDate != null and agentCombo.endCreateDate.trim() != ''">
+				AND c.create_date &lt;= #{agentCombo.endCreateDate}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>

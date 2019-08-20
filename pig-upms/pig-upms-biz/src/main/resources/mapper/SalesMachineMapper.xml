@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.salesMachine.mapper.SalesMachineMapper">
+
+	<resultMap id="salesMachineMap" type="com.pig4cloud.pig.goods.salesMachine.entity.SalesMachine">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="specId" column="spec_id"/>
+		<result property="specName" column="spec_name"/>
+		<result property="specProvider" column="spec_provider"/>
+		<result property="code" column="code"/>
+		<result property="status" column="status"/>
+		<result property="currAddreaa" column="curr_addreaa"/>
+		<result property="activateAddress" column="activate_address"/>
+		<result property="activateTime" column="activate_time"/>
+		<result property="belongsUser" column="belongs_user"/>
+		<result property="belongs" column="belongs"/>
+		<result property="belongsType" column="belongs_type"/>
+		<result property="creatorId" column="creator_id"/>
+		<result property="createTime" column="create_time"/>
+		<result property="referralCode" column="referral_code"/>
+	</resultMap>
+
+	<!--salesMachine简单分页查询-->
+	<select id="getSalesMachinePage" resultMap="salesMachineMap">
+		SELECT
+		machine.id,
+		machine.`name`,
+		machine.spec_id,
+		spec.spec AS spec_name,
+		spec.provider AS spec_provider,
+		machine.`code`,
+		machine.`status`,
+		machine.curr_addreaa,
+		machine.activate_address,
+		machine.activate_time,
+		machine.belongs_user,
+		agent.`name` AS belongs,
+		machine.belongs_type,
+		machine.creator_id,
+		machine.create_time,
+		machine.referral_code
+		FROM
+		fx_sales_machine machine
+		LEFT JOIN fx_agent agent ON machine.belongs_user = agent.agent_id
+		LEFT JOIN fx_sales_machine_spec spec ON spec.id = machine.spec_id
+		<where>
+			<if test="salesMachine.name != null and salesMachine.name.trim() != ''">
+				AND machine.name = #{salesMachine.name}
+			</if>
+			<if test="salesMachine.code != null and salesMachine.code.trim() != ''">
+				AND machine.code like concat( '%', #{salesMachine.code}, '%')
+			</if>
+			<if test="salesMachine.status != null">
+				AND machine.status = #{salesMachine.status}
+			</if>
+			<if test="salesMachine.currAddreaa != null and salesMachine.currAddreaa.trim() != ''">
+				AND machine.curr_addreaa like concat( '%', #{salesMachine.currAddreaa}, '%')
+			</if>
+			<if test="salesMachine.activateAddress != null and salesMachine.activateAddress.trim() != ''">
+				AND machine.activate_address like concat( '%', #{salesMachine.activateAddress}, '%')
+			</if>
+			<if test="salesMachine.activateTime != null">
+				AND machine.activate_time = #{salesMachine.activateTime}
+			</if>
+			<if test="salesMachine.activateStartTime != null and salesMachine.activateStartTime.trim() != ''">
+				AND machine.activate_time &gt;= #{salesMachine.activateStartTime}
+			</if>
+			<if test="salesMachine.activateEndTime != null and salesMachine.activateEndTime.trim() != ''">
+				AND machine.activate_time &lt;= #{salesMachine.activateEndTime}
+			</if>
+			<if test="salesMachine.belongsUser != null">
+				AND (machine.belongs_user = #{salesMachine.belongsUser}
+				<if test="salesMachine.referrerIds != null and salesMachine.referrerIds.trim() != ''">
+					or agent.referrer_ids like concat(#{salesMachine.referrerIds},'%')
+				</if>
+				)
+			</if>
+			<if test="salesMachine.referralCode != null and salesMachine.referralCode.trim() != ''">
+				AND referral_code = #{salesMachine.referralCode}
+			</if>
+			<if test="salesMachine.belongs != null and salesMachine.belongs.trim() != ''">
+				AND agent.name like concat( '%', #{salesMachine.belongs}, '%') or agent.phone like concat( '%',
+				#{salesMachine.belongs}, '%')
+			</if>
+
+		</where>
+	</select>
+
+
+</mapper>

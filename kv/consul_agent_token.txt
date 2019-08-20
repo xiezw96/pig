@@ -1,0 +1,7 @@
+AccessorID:   27fef9a4-bea9-0c5e-1e45-598f9c14f1b8
+SecretID:     7752d2b3-f8e8-1d8d-0752-1ce0113d3d05
+Description:  Agent Token
+Local:        false
+Create Time:  2019-04-13 02:53:50.701348436 +0000 UTC
+Policies:
+   72284956-30cb-4881-831e-118ce87cdc82 - agent-token

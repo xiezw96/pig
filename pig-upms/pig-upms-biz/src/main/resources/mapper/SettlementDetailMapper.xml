@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.order.settlementDetail.mapper.SettlementDetailMapper">
+
+	<resultMap id="settlementDetailMap" type="com.pig4cloud.pig.order.settlementDetail.entity.SettlementDetail">
+		<id property="id" column="id"/>
+		<result property="settlementId" column="settlement_id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="settlementPrice" column="settlement_price"/>
+		<result property="agentId" column="agent_id"/>
+		<result property="sourceAgentId" column="source_agent_id"/>
+		<result property="userId" column="user_id"/>
+		<result property="machineId" column="machine_id"/>
+		<result property="machineName" column="machine_name"/>
+		<result property="machineCode" column="machine_code"/>
+		<result property="source" column="source"/>
+		<result property="orderCode" column="order_code"/>
+		<result property="orderDetailId" column="order_detail_id"/>
+		<result property="shareProfit" column="share_profit"/>
+		<result property="payTime" column="pay_time"/>
+		<result property="orderCreateTime" column="order_create_time"/>
+		<result property="settlementPrice" column="settlement_price"/>
+		<result property="orderTotal" column="total_money"/>
+		<result property="goodsName" column="goods_name"/>
+		<result property="goodsAttId" column="goods_att_id"/>
+		<result property="goodsSpe1" column="goods_spe1"/>
+		<result property="goodsSpe2" column="goods_spe2"/>
+		<result property="payNum" column="pay_num"/>
+		<result property="salePrice" column="sale_price"/>
+		<result property="tradePrice" column="trade_price"/>
+	</resultMap>
+
+	<!--settlementDetail简单分页查询-->
+	<select id="getSettlementDetailPage" resultMap="settlementDetailMap">
+		SELECT
+		detail.id,
+		detail.agent_id,
+		detail.source_agent_id,
+		detail.user_id,
+		detail.machine_id,
+		m.`name` as machine_name,
+		m.`code` as machine_code,
+		detail.source,
+		detail.settlement_id,
+		detail.order_id,
+		detail.order_code,
+		detail.order_detail_id,
+		detail.share_profit,
+		detail.pay_time,
+		detail.order_create_time,
+		detail.settlement_price,
+		fxorder.total_money,
+		orderDetail.goods_name,
+		orderDetail.goods_att_id,
+		orderDetail.goods_spe1,
+		orderDetail.goods_spe2,
+		orderDetail.pay_num,
+		orderDetail.sale_price,
+		orderDetail.trade_price
+		FROM fx_settlement_detail detail
+		left join fx_order fxorder on fxorder.id = detail.order_id
+		left join fx_order_detail orderDetail on orderDetail.order_id = fxorder.id
+		left join fx_sales_machine m on m.id = detail.machine_id
+		<where>
+			<if test="settlementDetail.settlementId != null">
+				AND detail.settlement_id = #{settlementDetail.settlementId}
+			</if>
+		</where>
+	</select>
+
+	<!-- 只查询未申请结算的部分 -->
+	<!-- 只查询小于当前之前的数据 -->
+	<select id="getAgentSettlementMoney" resultType="java.math.BigDecimal">
+		SELECT
+		sum( d.settlement_price )
+		FROM
+		fx_settlement_detail d
+		WHERE
+		d.agent_id = #{agentId}
+		AND d.settlement_id IS NULL
+	</select>
+
+	<!-- 只查询已经支付的订单 -->
+	<select id="getOrderSettlementDetail" useCache="false"
+			resultType="com.pig4cloud.pig.order.settlementDetail.entity.OrderSettlementDetail">
+		SELECT
+		o.id AS orderId,
+		o.code AS orderCode,
+		od.id AS orderDetailId,
+		od.goods_id AS goodsId,
+		od.goods_name AS goodsName,
+		od.goods_att_id AS goodsAttId,
+		od.goods_spe1 AS goodsSpe1,
+		od.goods_spe2 AS goodsSpe2,
+		od.sale_price AS salePrice,
+		od.trade_price AS tradePrice,
+		od.pay_num AS payNum,
+		od.pay_price AS payPrice,
+		o.machine_id AS machineId,
+		o.creator_id as userId,
+		u.of_proxy AS userAgentId,
+		ag.agent_id AS machineAgentId,
+		o.pay_time AS payTime,
+		o.create_time AS orderCreateTime
+		FROM
+		fx_order_detail od,
+		fx_user u,
+		fx_order o
+		LEFT JOIN fx_sales_machine m ON m.id = o.machine_id
+		LEFT JOIN fx_agent ag ON ag.agent_id = m.belongs_user
+		WHERE
+		od.order_id = o.id
+		AND o.creator_id = u.id
+		AND o.type = 1
+		AND o.pay_time IS NOT NULL
+		AND o.pay_status = 1
+		AND o.is_settlement = 0
+	</select>
+
+	<update id="updateSettlementDetailOrderId" flushCache="true">
+		UPDATE fx_settlement_detail
+		SET settlement_id = #{settlementId}
+		WHERE
+		agent_id = #{agentId}
+		AND settlement_id IS NULL
+	</update>
+
+	<update id="updateOrderSettlement">
+		update fx_order set is_settlement = 1 where id in
+		<foreach collection="orderId" open="(" close=")" item="orderId" separator=",">
+			#{orderId}
+		</foreach>
+	</update>
+
+</mapper>

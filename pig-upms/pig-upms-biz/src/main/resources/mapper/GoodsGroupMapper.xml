@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.goods.goodsGroup.mapper.GoodsGroupMapper">
+
+  <resultMap id="goodsGroupMap" type="com.pig4cloud.pig.goods.goodsGroup.entity.GoodsGroup">
+                  <id property="id" column="id"/>
+                        <result property="name" column="name"/>
+                        <result property="sort" column="sort"/>
+                        <result property="goodsNum" column="goodsNum"/>
+                        <result property="username" column="username"/>
+                        <result property="creatorId" column="creator_id"/>
+                        <result property="createDate" column="create_date"/>
+            </resultMap>
+	<sql id="getgoodsGroup">
+		 `group`.id,
+         `group`.name,
+         `group`.sort,
+         if(`group`.id=1,(select count(1) AS num from fx_goods where status = 1),
+			(select count(1) AS num from fx_goods_group_rel rel 
+			left join fx_goods goods on rel.goods_id = goods.id
+			where rel.goods_group_id =`group`.id))AS `goodsNum`,
+         `group`.creator_id,
+         `user`.username AS uaername,
+         `group`.create_date
+	</sql>
+  <!--goodsGroup简单分页查询-->
+  <select id="getGoodsGroupPage" resultMap="goodsGroupMap">
+       SELECT
+       <include refid="getgoodsGroup" />
+FROM fx_goods_group `group` left join sys_user `user` on `group`.creator_id = `user`.user_id
+    <where>
+              <if test="goodsGroup.id != null and goodsGroup.id.trim() != ''">
+          AND `group`.id = #{goodsGroup.id}
+        </if>
+              <if test="goodsGroup.name != null and goodsGroup.name.trim() != ''">
+          AND `group`.name = #{goodsGroup.name}
+        </if>
+              <if test="goodsGroup.sort != null and goodsGroup.sort.trim() != ''">
+          AND `group`.sort = #{goodsGroup.sort}
+        </if>
+              <if test="goodsGroup.creatorId != null and goodsGroup.creatorId.trim() != ''">
+          AND `group`.creator_id = #{goodsGroup.creatorId}
+        </if>
+              <if test="goodsGroup.createDate != null and goodsGroup.createDate.trim() != ''">
+          AND `group`.create_date &gt;= #{goodsGroup.createDate}
+        </if>
+          </where>
+  </select>
+	
+<select id="getGoodsGroupList" resultMap="goodsGroupMap">
+    SELECT
+       <include refid="getgoodsGroup" />
+FROM fx_goods_group `group` left join sys_user `user` on `group`.creator_id = `user`.user_id
+    <where>
+              <if test="goodsGroup.id != null and goodsGroup.id.trim() != ''">
+          AND `group`.id = #{goodsGroup.id}
+        </if>
+              <if test="goodsGroup.name != null and goodsGroup.name.trim() != ''">
+          AND `group`.name = #{goodsGroup.name}
+        </if>
+              <if test="goodsGroup.sort != null and goodsGroup.sort.trim() != ''">
+          AND `group`.sort = #{goodsGroup.sort}
+        </if>
+              <if test="goodsGroup.creatorId != null and goodsGroup.creatorId.trim() != ''">
+          AND `group`.creator_id = #{goodsGroup.creatorId}
+        </if>
+              <if test="goodsGroup.createDate != null and goodsGroup.createDate.trim() != ''">
+          AND `group`.create_date  &gt;= #{goodsGroup.createDate}
+        </if>
+          </where>
+  </select>
+
+</mapper>

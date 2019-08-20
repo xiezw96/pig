@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~
+  ~      Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~  Redistribution and use in source and binary forms, with or without
+  ~  modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~  this list of conditions and the following disclaimer.
+  ~  Redistributions in binary form must reproduce the above copyright
+  ~  notice, this list of conditions and the following disclaimer in the
+  ~  documentation and/or other materials provided with the distribution.
+  ~  Neither the name of the pig4cloud.com developer nor the names of its
+  ~  contributors may be used to endorse or promote products derived from
+  ~  this software without specific prior written permission.
+  ~  Author: lengleng (wangiegie@gmail.com)
+  ~
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pig4cloud.pig.order.returnOrder.mapper.ReturnOrderMapper">
+
+	<resultMap id="returnOrderMap" type="com.pig4cloud.pig.order.returnOrder.entity.ReturnOrder">
+		<id property="id" column="id"/>
+		<result property="orderid" column="orderid"/>
+		<result property="code" column="code"/>
+		<result property="returnReason" column="return_reason"/>
+		<result property="logisticsCompany" column="logistics_company"/>
+		<result property="logisticsCode" column="logistics_code"/>
+		<result property="status" column="status"/>
+		<result property="isRefund" column="is_refund"/>
+		<result property="remark" column="remark"/>
+	</resultMap>
+
+	<!--returnOrder简单分页查询-->
+	<select id="getReturnOrderPage" resultMap="returnOrderMap">
+		SELECT
+		id,
+		orderid,
+		code,
+		return_reason,
+		logistics_company,
+		logistics_code,
+		status,
+		is_refund,
+		remark
+		FROM fx_return_order
+		<where>
+			<if test="returnOrder.id != null">
+				AND id = #{returnOrder.id}
+			</if>
+			<if test="returnOrder.orderid != null">
+				AND orderid = #{returnOrder.orderid}
+			</if>
+			<if test="returnOrder.code != null and returnOrder.code.trim() != ''">
+				AND code = #{returnOrder.code}
+			</if>
+			<if test="returnOrder.returnReason != null and returnOrder.returnReason.trim() != ''">
+				AND return_reason = #{returnOrder.returnReason}
+			</if>
+			<if test="returnOrder.logisticsCompany != null and returnOrder.logisticsCompany.trim() != ''">
+				AND logistics_company = #{returnOrder.logisticsCompany}
+			</if>
+			<if test="returnOrder.logisticsCode != null and returnOrder.logisticsCode.trim() != ''">
+				AND logistics_code = #{returnOrder.logisticsCode}
+			</if>
+			<if test="returnOrder.status != null">
+				AND status = #{returnOrder.status}
+			</if>
+			<if test="returnOrder.isRefund != null">
+				AND is_refund = #{returnOrder.isRefund}
+			</if>
+			<if test="returnOrder.remark != null and returnOrder.remark.trim() != ''">
+				AND remark = #{returnOrder.remark}
+			</if>
+		</where>
+	</select>
+
+
+</mapper>
