@@ -308,10 +308,10 @@ create index Index_sys_agent_phone on fx_agent
 /*==============================================================*/
 /* Index: Index_sys_agent_userid                                */
 /*==============================================================*/
-create index Index_sys_agent_userid on fx_agent
-(
+/*create index Index_sys_agent_userid on fx_agent
+/*(
 
-);
+/*);
 
 /*==============================================================*/
 /* Table: fx_agent_combo                                        */

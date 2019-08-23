@@ -7,10 +7,10 @@ spring:
   # 配置中心
   cloud:
     consul:
-      host: pig-consul
+      host: localhost #pig-consul
       port: 8500
       discovery:
-        hostname: pig-upms
+        hostname: localhost #pig-upms
         datacenters:
           fuzhou: fuzhou
         aclToken: 5ce8e68c-b704-5485-5ecd-29825b9c9cc9

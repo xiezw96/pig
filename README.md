@@ -1,6 +1,5 @@
 #### 核心依赖 
 
-
 依赖 | 版本
 ---|---
 Consul  |  1.4.4
@@ -10,8 +9,6 @@ Spring Security OAuth2 | 2.3.3
 Mybatis Plus | 3.1.0
 hutool | 4.5.0
    
-
-
 #### 模块说明
 ```lua
 pig
@@ -28,6 +25,10 @@ pig
 └── pigx-visual  -- 图形化模块 
      ├── pigx-monitor -- Spring Boot Admin监控 [5001]
      └── pigx-codegen -- 图形化代码生成[5003]
+```
 
+#### 前端工程
+```lua
 pig-admin 疯象乐园总部管理系统[3001]
 pig-agent 疯象乐园[3002]
+```

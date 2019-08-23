@@ -207,7 +207,7 @@ CREATE TABLE `sys_oauth_client_details` (
 --  Records of `sys_oauth_client_details`
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_oauth_client_details` VALUES ('agent_app', null, 'agent_app', 'server', 'password,refresh_token', null, null, null, null, '{"userType":"agent"}', 'true'), ('shadow', null, 'shadow', 'server', 'password,refresh_token', null, null, null, null, null, 'true'), ('gen', null, 'gen', 'server', 'password,refresh_token', null, null, null, null, null, 'true'), ('pig', null, 'pig', 'server', 'password,refresh_token,authorization_code,client_credentials', '', null, null, null, '{"userType":"inner"}', 'true')
+INSERT INTO `sys_oauth_client_details` VALUES ('agent_app', null, 'agent_app', 'server', 'password,refresh_token', null, null, null, null, '{"userType":"agent"}', 'true'), ('shadow', null, 'shadow', 'server', 'password,refresh_token', null, null, null, null, null, 'true'), ('gen', null, 'gen', 'server', 'password,refresh_token', null, null, null, null, null, 'true'), ('pig', null, 'pig', 'server', 'password,refresh_token,authorization_code,client_credentials', '', null, null, null, '{"userType":"inner"}', 'true');
 COMMIT;
 
 -- ----------------------------
@@ -222,6 +222,7 @@ CREATE TABLE `sys_role` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `del_flag` char(1) COLLATE utf8mb4_bin DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
+  `operator_id` int(11) NOT NULL,
   PRIMARY KEY (`role_id`),
   UNIQUE KEY `role_idx1_role_code` (`role_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='系统角色表';
@@ -230,7 +231,7 @@ CREATE TABLE `sys_role` (
 --  Records of `sys_role`
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_role` VALUES ('1', '管理员', 'ROLE_ADMIN', '管理员', null,'2017-10-29 15:45:51', '2018-12-26 14:09:11', '0');
+INSERT INTO `sys_role` VALUES ('1', '管理员', 'ROLE_ADMIN', '管理员', '2017-10-29 15:45:51', '2018-12-26 14:09:11', '0', '1');
 COMMIT;
 
 -- ----------------------------
@@ -330,7 +331,7 @@ CREATE TABLE `sys_user` (
 --  Records of `sys_user`
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` VALUES ('1', 'admin', '管理员', null ,'inner','$2a$10$RpFJjxYiXdEsAGnWp/8fsOetMuOON96Ntk/Ym2M/RKRyU0GZseaDC', null, '17034642999', '', '1', '2018-04-20 07:15:18', '2019-01-31 14:29:07', '0', '0', 'o_0FT0uyg_H1vVy2H0JpSwlVGhWQ', null);
+INSERT INTO `sys_user` VALUES ('1', 'admin', '1', '管理员', 'inner','$2a$10$RpFJjxYiXdEsAGnWp/8fsOetMuOON96Ntk/Ym2M/RKRyU0GZseaDC', null, '17034642999', '', '1', '2018-04-20 07:15:18', '2019-01-31 14:29:07', '0', '0', 'o_0FT0uyg_H1vVy2H0JpSwlVGhWQ', null, 0);
 COMMIT;
 
 -- ----------------------------
